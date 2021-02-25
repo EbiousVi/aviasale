@@ -6,6 +6,8 @@ import com.example.aviasale.domain.dto.authDto.RegFormDto;
 import com.example.aviasale.domain.entity.User;
 import com.example.aviasale.security.JwtTokenProvider;
 import com.example.aviasale.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,9 +36,11 @@ public class AuthController {
         this.userService = userService;
         this.jwtTokenProvider = jwtTokenProvider;
     }
+    private static final Logger logger
+            = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/api/auth/login")
-    public ResponseEntity<?> authenticate(@RequestBody LoginFormDto loginFormDto) {
+    public ResponseEntity<?> authenticate(@RequestBody LoginFormDto loginFormDto, HttpServletRequest request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginFormDto.getEmail(), loginFormDto.getPassword()));
             User user = userService.findByEmail(loginFormDto.getEmail());

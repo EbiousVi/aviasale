@@ -26,4 +26,9 @@ public interface FlightsRepository extends JpaRepository<Flights, Integer> {
                                         @Param("date2") LocalDateTime date2);
 
     Flights findByFlightId(Integer flightId);
+
+
+    @Query("select distinct f.airportTo from Flights f where f.airportFrom =:param")
+    List<String> setAirportTo(String param);
+
 }
