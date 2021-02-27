@@ -1,55 +1,39 @@
 package com.example.aviasale.repository;
 
-import com.example.aviasale.domain.entity.Airports;
-import com.example.aviasale.service.FlightService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.locationtech.jts.geom.Point;
+import com.example.aviasale.domain.entity.Flights;
+import com.example.aviasale.service.NewService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class FlightsRepositoryTest {
 
     @Autowired
-    private AirportsRepository airportsRepository;
+    private NewService newService;
 
     @Autowired
     private FlightsRepository flightsRepository;
 
-    @Autowired
-    private FlightService flightService;
-
    /* @Test
-    void AAA() {
-        List<String> stw = flightsRepository.AAA("STW");
-        List<String> pee = flightsRepository.AAA("PEE");
-        System.out.println(stw);
-        System.out.println(pee);
-        stw.retainAll(pee);
-        System.out.println(stw);
+    void cal() {
+        Map<String, Flights> map = newService.newEngineFlight();
+        System.err.println(map.size() + " ITS OVER");
+        map.forEach((k, v) -> {
+            System.out.println(v.getFlightId() + " | " + v.getDepartureDate() + " | " + v.getArrivalDate() + " | " + v.getAirportFrom() + " | " + v.getAirportTo());
+        });
+
     }*/
 
     @Test
-    void cal() throws JsonProcessingException {
-
-        List<String> setAirportTo1 = flightsRepository.setAirportTo("STW");
-        List<String> setAirportTo2 = flightsRepository.setAirportTo("PEE");
-
-        List<Airports> STW = airportsRepository.findAllByCityContainsIgnoreCase("ставрополь");
-        List<Airports> PEE = airportsRepository.findAllByCityContainsIgnoreCase("пермь");
-
-        Point stw = STW.get(0).getPoint();
-        Point pee = PEE.get(0).getPoint();
-        System.out.println(stw.getX());
-        System.out.println(pee.getX());
-
-        double dist = flightService.distFrom(stw.getY(), stw.getX(), pee.getY(), pee.getX());
-        if (dist < 400) {
-            System.out.println("РАССТОЯНИЕ МАЛО ДЛЯ ПОЛЕТА НА САМОЛЕТЕ!");
-        }
-
+    void  t() {
+        List<String> list = flightsRepository.intersectArrivalAirports("PEE", "STW");
+        System.out.println(list);
     }
+
 }

@@ -1,9 +1,9 @@
 package com.example.aviasale.service;
 
-import com.example.aviasale.domain.pojo.Price;
-import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.dto.apiDto.FlightsDto;
+import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.entity.Flights;
+import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.repository.FlightsRepository;
 import com.example.aviasale.repository.TicketFlightsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +33,14 @@ public class FlightService {
 
     public void setSearchFormDto(SearchFormDto searchFormDto) {
         this.searchFormDto = searchFormDto;
+    }
+
+    public LocalDateTime dayStart() {
+        return LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00");
+    }
+
+    public LocalDateTime dayEnd() {
+        return LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00");
     }
 
     private List<FlightsDto> prepareResultDto(List<Flights> flights, Boolean interval) {
@@ -64,51 +74,21 @@ public class FlightService {
     public List<Flights> findFlights() {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-
         LocalDateTime date1 = LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00");
         LocalDateTime date2 = LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00");
-        return flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
-    }
-
-    /*public void newEngineFlight() {
-        List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
-        List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-        LocalDateTime date1 = LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00");
-        LocalDateTime date2 = LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00");
-        List<Flights> allFlightsByParam = flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
-
-        if (allFlightsByParam.size() == 0) {
-            List<String> from = flightsRepository.AAA("STW");
-            List<String> to = flightsRepository.AAA("PEE");
-            boolean possible = from.retainAll(to);
-            if (possible) {
-                if (from.contains("SVO")) {
-                    Flights first = flightsRepository.findOne("STW", "SVO", date);
-                    Flights second = flightsRepository.findOne("SVO", "PEE", date);
-                }
-            }
+        List<Flights> flights = flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
+        if (flights.size() == 0) {
+            return flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1.minusDays(5), date2.plusDays(5));
         }
-        return "не возможно найти перелет несколькими пересадками пересадкой";
-    }*/
-    // lat = широта; lng = долгота;
-    public double distFrom(double lat1, double lng1, double lat2, double lng2) {
-        double earthRadius = 6371000;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return (earthRadius * c);
+        return flights;
     }
-
 
     public List<Flights> findFlightsInterval() {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
 
-        LocalDateTime minusWeek = LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00").minusWeeks(1);
-        LocalDateTime plusWeek = LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00").plusWeeks(1);
+        LocalDateTime minusWeek = LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00").minusDays(5);
+        LocalDateTime plusWeek = LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00").plusDays(5);
         return flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, minusWeek, plusWeek);
     }
 
@@ -136,5 +116,17 @@ public class FlightService {
         } else {
             return 0D;
         }
+    }
+
+    // lat = широта; lng = долгота;
+    public double distByCoordinates(double lat1, double lng1, double lat2, double lng2) {
+        double earthRadius = 6371000;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return (earthRadius * c);
     }
 }

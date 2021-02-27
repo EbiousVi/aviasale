@@ -28,7 +28,16 @@ public interface FlightsRepository extends JpaRepository<Flights, Integer> {
     Flights findByFlightId(Integer flightId);
 
 
-    @Query("select distinct f.airportTo from Flights f where f.airportFrom =:param")
-    List<String> setAirportTo(String param);
+    @Query(value = "select distinct arrival_airport from flights\n" +
+            "where departure_airport =:depAir1 \n" +
+            "INTERSECT\n" +
+            "select distinct arrival_airport from flights\n" +
+            "where departure_airport =:depAir2", nativeQuery = true)
+    List<String> intersectArrivalAirports(@Param("depAir1") String depAir1, @Param("depAir2") String depAir2);
+
+    @Query("select f from Flights f where f.airportFrom =:airportFrom and f.airportTo =:airportTo and f.departureDate =:date")
+    Flights findByAirportsAndDate(@Param("airportFrom") String airportFrom,
+                                  @Param("airportTo") String airportTo,
+                                  @Param("date") LocalDateTime date);
 
 }
