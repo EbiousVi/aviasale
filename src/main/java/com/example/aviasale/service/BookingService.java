@@ -44,7 +44,6 @@ public class BookingService {
                 Bookings booking = createBooking(user, price, searchFormDto.getNumberOfTickets());
                 List<Tickets> tickets = createTickets(booking, passengersDataList);
                 createTicketsFlights(tickets, price, searchFormDto);
-
             }
         } else {
             throw new BookingFailedException("No available seats in this Flight!", HttpStatus.UPGRADE_REQUIRED);

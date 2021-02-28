@@ -2,7 +2,6 @@ package com.example.aviasale.controller;
 
 import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.domain.dto.apiDto.BookingsDto;
-import com.example.aviasale.domain.dto.apiDto.FlightsDto;
 import com.example.aviasale.domain.dto.apiDto.PassengersData;
 import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.entity.Airports;
@@ -12,8 +11,6 @@ import com.example.aviasale.service.AirportsService;
 import com.example.aviasale.service.BookingService;
 import com.example.aviasale.service.FlightService;
 import com.example.aviasale.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,16 +55,10 @@ public class FlightsController {
     }
 
     @PostMapping("/flights")
-    public List<FlightsDto> getFlights(@RequestBody SearchFormDto searchFormDto) {
+    public ResponseEntity<?> getFlights(@RequestBody SearchFormDto searchFormDto) {
         this.searchFormDto = searchFormDto;
-        System.err.println(searchFormDto);
         flightService.setSearchFormDto(searchFormDto);
-        List<FlightsDto> flightsDtoList = flightService.getFlights();
-        if (flightsDtoList.size() == 0) {
-            return flightService.getFlightsInterval();
-        } else {
-            return flightsDtoList;
-        }
+        return flightService.getFlights();
     }
 
     @GetMapping("/prepare-booking")

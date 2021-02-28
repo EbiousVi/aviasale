@@ -21,7 +21,7 @@ public class JwtTokenProvider {
     private final UserDetailsServiceImpl userDetailsService;
     private final String signatureKey = "Victor";
     private final String authHeader = "Authorization";
-    private final long accessTokenValidity = 1800 * 1000;
+    private final long accessTokenValidity = 3600 * 1000;
     private final long refreshTokenValidity = 604800 * 1000;
 
     public JwtTokenProvider(UserDetailsServiceImpl userDetailsService) {

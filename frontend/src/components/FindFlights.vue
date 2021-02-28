@@ -1,6 +1,6 @@
 <template>
     <h1 v-if="warning">Nothing found by selected date!</h1>
-    <h3 v-if="check">Nothing found by selected date! Result in interval ± week by selected date.</h3>
+    <h3 v-if="check">Nothing found by selected date! Result in interval around week by selected date.</h3>
     <div v-for="(fl,index) of prepareFlights" v-bind:key="fl">
         <table v-if="table || fl.show" v-bind:class="index">
             <thead>

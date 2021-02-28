@@ -1,77 +1,93 @@
 package com.example.aviasale.domain.dto.apiDto;
 
-import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
+import com.example.aviasale.domain.pojo.Price;
 
 public class FlightsDto {
-    private Boolean show;
-    private Boolean interval;
-    private Flights flight;
-    private Airports airportFrom;
-    private Airports airportTo;
-    private Price price;
+    private Boolean conn;
+
+    public Boolean getConn() {
+        return conn;
+    }
+
+    public void setConn(Boolean conn) {
+        this.conn = conn;
+    }
+
+    private Flights flight1;
+    private Flights flight2;
+    private Airports airFrom1;
+    private Airports airTo1;
+    private Airports airFrom2;
+    private Airports airTo2;
+    private Price price1;
+    private Price price2;
 
     public FlightsDto() {
     }
 
-    @Override
-    public String toString() {
-        return "FlightsDto{" +
-                "interval=" + interval +
-                ", flight=" + flight +
-                ", airportFrom=" + airportFrom +
-                ", airportTo=" + airportTo +
-                ", price=" + price +
-                '}';
+    public Flights getFlight1() {
+        return flight1;
     }
 
-    public Boolean getShow() {
-        return show;
+    public void setFlight1(Flights flight1) {
+        this.flight1 = flight1;
     }
 
-    public void setShow(Boolean show) {
-        this.show = show;
+    public Flights getFlight2() {
+        return flight2;
     }
 
-    public Flights getFlight() {
-        return flight;
+    public void setFlight2(Flights flight2) {
+        this.flight2 = flight2;
     }
 
-    public void setFlight(Flights flight) {
-        this.flight = flight;
+    public Airports getAirFrom1() {
+        return airFrom1;
     }
 
-    public Airports getAirportFrom() {
-        return airportFrom;
+    public void setAirFrom1(Airports airFrom1) {
+        this.airFrom1 = airFrom1;
     }
 
-    public void setAirportFrom(Airports airportFrom) {
-        this.airportFrom = airportFrom;
+    public Airports getAirTo1() {
+        return airTo1;
     }
 
-    public Airports getAirportTo() {
-        return airportTo;
+    public void setAirTo1(Airports airTo1) {
+        this.airTo1 = airTo1;
     }
 
-    public void setAirportTo(Airports airportTo) {
-        this.airportTo = airportTo;
+    public Airports getAirFrom2() {
+        return airFrom2;
     }
 
-    public Price getPrice() {
-        return price;
+    public void setAirFrom2(Airports airFrom2) {
+        this.airFrom2 = airFrom2;
     }
 
-    public void setPrice(Price price) {
-        this.price = price;
+    public Airports getAirTo2() {
+        return airTo2;
     }
 
-    public Boolean getInterval() {
-        return interval;
+    public void setAirTo2(Airports airTo2) {
+        this.airTo2 = airTo2;
     }
 
-    public void setInterval(Boolean interval) {
-        this.interval = interval;
+    public Price getPrice1() {
+        return price1;
+    }
+
+    public void setPrice1(Price price1) {
+        this.price1 = price1;
+    }
+
+    public Price getPrice2() {
+        return price2;
+    }
+
+    public void setPrice2(Price price2) {
+        this.price2 = price2;
     }
 }
-

@@ -10,13 +10,15 @@ import java.util.stream.Collectors;
 
 public class TestSimple {
     public static void main(String[] args) {
-        List<String> list = new ArrayList<>();
-        list.add("CEK");
-        list.add("VKO");
-        List<String> list2 = new ArrayList<>();
-        list2.add("VKO");
+        List<Integer> list = new ArrayList<>();
+        list.add(100);
+        list.add(200);
+        list.add(300);
+        list.add(400);
 
-        boolean b = list.removeAll(list2);
-        System.out.println(list);
+        for (int i = 0; i < list.size(); i+=2) {
+            System.out.println(list.get(i));
+            System.out.println(list.get(i + 1));
+        }
     }
 }

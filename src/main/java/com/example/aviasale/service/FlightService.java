@@ -1,12 +1,15 @@
 package com.example.aviasale.service;
 
-import com.example.aviasale.domain.dto.apiDto.FlightsDto;
+import com.example.aviasale.domain.dto.apiDto.FlightDto;
 import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.repository.FlightsRepository;
 import com.example.aviasale.repository.TicketFlightsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +25,18 @@ public class FlightService {
     final private FlightsRepository flightsRepository;
     final private AirportsService airportsService;
     final private TicketFlightsRepository ticketFlightsRepository;
+
+    final private ConnFlightService connFlightService;
+
     private SearchFormDto searchFormDto;
 
     @Autowired
-    public FlightService(FlightsRepository flightsRepository, AirportsService airportsService, TicketFlightsRepository ticketFlightsRepository) {
+    public FlightService(FlightsRepository flightsRepository, AirportsService airportsService,
+                         TicketFlightsRepository ticketFlightsRepository, @Lazy ConnFlightService connFlightService) {
         this.flightsRepository = flightsRepository;
         this.airportsService = airportsService;
         this.ticketFlightsRepository = ticketFlightsRepository;
+        this.connFlightService = connFlightService;
     }
 
     public void setSearchFormDto(SearchFormDto searchFormDto) {
@@ -43,42 +51,50 @@ public class FlightService {
         return LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00");
     }
 
-    private List<FlightsDto> prepareResultDto(List<Flights> flights, Boolean interval) {
-        List<FlightsDto> list = new ArrayList<>();
+    private List<FlightDto> prepareDto(List<Flights> flights, Boolean interval) {
+        List<FlightDto> list = new ArrayList<>();
         for (Flights flight : flights) {
-            FlightsDto flightsDto = new FlightsDto();
-            flightsDto.setShow(false);
-            flightsDto.setInterval(interval);
-            flightsDto.setFlight(flight);
-            flightsDto.setAirportFrom(airportsService.getAirportFrom(flight.getFlightId()));
-            flightsDto.setAirportTo(airportsService.getAirportTo(flight.getFlightId()));
+            FlightDto flightDto = new FlightDto();
+            flightDto.setShow(false);
+            flightDto.setInterval(interval);
+            flightDto.setFlight(flight);
+            flightDto.setAirportFrom(airportsService.getAirportFrom(flight.getFlightId()));
+            flightDto.setAirportTo(airportsService.getAirportTo(flight.getFlightId()));
             Price price = new Price();
             price.setFlightId(flight.getFlightId());
-            price.setValue(BigDecimal.valueOf(calculatePrice(searchFormDto.getConditions())));
-            flightsDto.setPrice(price);
-            list.add(flightsDto);
+            price.setValue(calculatePrice(searchFormDto.getConditions()));
+            flightDto.setPrice(price);
+            list.add(flightDto);
         }
         return list;
     }
 
-    public List<FlightsDto> getFlights() {
+    public ResponseEntity<?> getFlights() {
         List<Flights> flights = filter(this.findFlights());
-        return prepareResultDto(flights, false);
+        if (flights.size() == 0) {
+            List<Flights> flightsInterval = this.getFlightsInterval();
+            if (flightsInterval.size() == 0) {
+                connFlightService.setSearchFormDto(searchFormDto);
+                return new ResponseEntity<>(connFlightService.prepareDto(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(prepareDto(flightsInterval, true), HttpStatus.OK);
+            }
+        } else {
+            return new ResponseEntity<>(prepareDto(flights, false), HttpStatus.OK);
+        }
     }
 
-    public List<FlightsDto> getFlightsInterval() {
-        List<Flights> flights = filter(this.findFlightsInterval());
-        return prepareResultDto(flights, true);
+    public List<Flights> getFlightsInterval() {
+        return filter(this.findFlightsInterval());
     }
 
     public List<Flights> findFlights() {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-        LocalDateTime date1 = LocalDateTime.parse(searchFormDto.getDate() + "T00:00:00");
-        LocalDateTime date2 = LocalDateTime.parse(searchFormDto.getDate() + "T23:59:00");
-        List<Flights> flights = flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
+
+        List<Flights> flights = flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, dayStart(), dayEnd());
         if (flights.size() == 0) {
-            return flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, date1.minusDays(5), date2.plusDays(5));
+            return flightsRepository.findAllFlightsByParam(airportsInCityFrom, airportsInCityTo, dayStart().minusDays(4), dayEnd().plusDays(4));
         }
         return flights;
     }
@@ -106,16 +122,15 @@ public class FlightService {
         }).collect(Collectors.toList());
     }
 
-    public Double calculatePrice(String fareConditions) {
+    public BigDecimal calculatePrice(String fareConditions) {
         if (fareConditions.equalsIgnoreCase("economy")) {
-            return 5000D + Math.round(Math.random() * 5000);
+            return BigDecimal.valueOf(5000D + Math.round(Math.random() * 5000));
         } else if (fareConditions.equalsIgnoreCase("comfort")) {
-            return 12000D + Math.round(Math.random() * 10000);
+            return BigDecimal.valueOf(12000D + Math.round(Math.random() * 10000));
         } else if (fareConditions.equalsIgnoreCase("business")) {
-            return 23000D + Math.round(Math.random() * 15000);
-        } else {
-            return 0D;
+            return BigDecimal.valueOf(23000D + Math.round(Math.random() * 15000));
         }
+        return BigDecimal.valueOf(Integer.MAX_VALUE);
     }
 
     // lat = широта; lng = долгота;

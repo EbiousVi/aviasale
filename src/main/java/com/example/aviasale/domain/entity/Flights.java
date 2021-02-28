@@ -2,6 +2,7 @@ package com.example.aviasale.domain.entity;
 
 import com.example.aviasale.domain.custom_types.Interval;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.Column;
@@ -41,9 +42,11 @@ public class Flights {
     @Column(name = "aircraft_code")
     private String aircraft;
 
+    @JsonIgnore
     @Column(name = "actual_arrival")
     private LocalDateTime actualArrival;
 
+    @JsonIgnore
     @Column(name = "actual_departure")
     private LocalDateTime actualDeparture;
 

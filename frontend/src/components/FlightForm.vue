@@ -69,7 +69,7 @@
             },
             submitForm() {
                 this.warning = false;
-                this.$emit("loaded", [false, false]);
+                this.$emit("loaded", [false, false, false]);
                 const accessToken = this.$store.getters.getAccessToken;
                 const isValid = validity(accessToken);
                 if (isValid) {
@@ -81,9 +81,15 @@
                     })
                         .then((response) => {
                             if (response.status === 200 && response.data.length > 0) {
-                                this.$store.commit("setFlights", response.data);
-                                this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
-                                this.$emit("loaded", [true, false]);
+                                console.log(response.data[0].conn  + `AIUILJDIAUHDJM`)
+                                if (response.data[0].conn === true) {
+                                    this.$store.commit("setFlightsDto", response.data);
+                                    this.$emit("loaded", [false, false, true]);
+                                } else {
+                                    this.$store.commit("setFlights", response.data);
+                                    this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
+                                    this.$emit("loaded", [false, true, false]);
+                                }
                             } else {
                                 this.warning = true;
                             }

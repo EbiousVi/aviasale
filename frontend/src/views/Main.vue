@@ -1,8 +1,9 @@
 <template>
     <div class="main">
         <flight-form v-on:loaded="formHandler"></flight-form>
-        <find-flights v-if="loaded" v-on:booking="bookingHandler"></find-flights>
+        <find-flights v-if="showSingle" v-on:booking="bookingHandler"></find-flights>
         <booking-form v-if="booking"></booking-form>
+        <flights v-if="showMultiply" v-on:booking="bookingHandler"></flights>
     </div>
 </template>
 
@@ -10,25 +11,29 @@
     import FlightForm from "../components/FlightForm";
     import FindFlights from "../components/FindFlights";
     import BookingForm from "../components/BookingForm";
+    import Flights from "../components/Flights";
 
     export default {
         name: 'App',
         components: {
+            Flights,
             BookingForm,
             FindFlights,
             FlightForm,
         },
         data() {
             return {
-                loaded: false,
+                showSingle: false,
+                showMultiply: false,
                 booking: false,
             }
         },
         methods: {
             formHandler(data) {
-                this.loaded = data[0];
-                this.booking = data[1];
-
+                console.log(data)
+                this.booking = data[0];
+                this.showSingle = data[1];
+                this.showMultiply = data[2];
             },
             bookingHandler(data) {
                 this.booking = data;

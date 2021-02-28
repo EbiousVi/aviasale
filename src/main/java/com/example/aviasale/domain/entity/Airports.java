@@ -1,6 +1,7 @@
 package com.example.aviasale.domain.entity;
 
 import com.example.aviasale.domain.custom_types.PointType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.locationtech.jts.geom.Point;
 
 import org.hibernate.annotations.Type;
@@ -25,7 +26,7 @@ public class Airports {
     @Column(name = "city")
     private String city;
 
-
+    @JsonIgnore
     @Type(type = "PointType")
     @Column(name = "coordinates")
     private Point point;
