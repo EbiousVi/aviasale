@@ -1,10 +1,10 @@
 import {validity} from "./validateToken";
 import axios from "axios";
 import {bearer} from "./bearer";
-import {store} from "../store/store";
+
 
 export function axiosDelete(text, url) {
-    const accessToken = store.getters.getAccessToken;
+    const accessToken = localStorage.getItem("accessToken")
     const isValid = validity(accessToken);
     if (isValid) {
         axios.delete(url, {

@@ -10,9 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BookingsRepository extends JpaRepository<Bookings, String> {
-    @Modifying
-    @Query("delete from Bookings b where b.bookRef =:bookRef")
-    void deleteByBookRef(String bookRef);
 
     Bookings findByBookRef(String bookRef);
 

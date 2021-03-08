@@ -1,20 +1,25 @@
 <template>
     <div class="card" v-for="(f, i) of prepareFlights" v-bind:key="f">
-        <div class="index">{{i + 1}}</div>
+        <div class="index" v-if="index">{{i + 1}}</div>
         <div class="main">
             <div class="main-left">
                 <p> {{f.flight1.departureDate}}</p>
                 <p>{{f.flight1.airportFrom}}</p>
+                <p><span class="span-helper">Price 1</span>
+                    {{f.price1.value}}</p>
             </div>
             <div class="main-mid">
                 <p><span class="span-helper">Total Duration</span>
                     {{transfer(f.flight1.departureDate, f.flight2.arrivalDate)}}</p>
-                <p>{{f.price1.value + f.price2.value}}</p>
+                <p><span class="span-helper">Total Price</span>
+                    {{f.price1.value + f.price2.value}}</p>
                 <p> ---->>>> </p>
             </div>
             <div class="main-right">
                 <p> {{f.flight2.arrivalDate}}</p>
                 <p>{{f.flight2.airportTo}}</p>
+                <p><span class="span-helper">Price 2</span>
+                    {{f.price2.value}}</p>
             </div>
         </div>
         <div class="flight-1">
@@ -31,9 +36,10 @@
                     {{f.airFrom1.airportName}} {{f.airFrom1.city}}</p>
                 <p>{{f.flight1.arrivalDate}} {{f.airTo1.airportCode}}
                     {{f.airTo1.airportName}} {{f.airTo1.city}}</p>
-                <details>
+                <details @click="checkFreeSeats(f.flight1.flightId, f.flight1.aircraft)">
                     <summary>Details</summary>
-                    <p> Lorem </p>
+                    <p><span class="span-helper">flightId</span> {{f.flight1.flightId}} </p>
+                    <p><span class="span-helper">Free seats:</span> {{freeSeats.get(f.flight1.flightId)}} </p>
                 </details>
             </div>
         </div>
@@ -54,34 +60,124 @@
                     {{f.airFrom2.airportName}} {{f.airFrom2.city}}</p>
                 <p>{{f.flight2.arrivalDate}} {{f.airTo2.airportCode}}
                     {{f.airTo2.airportName}} {{f.airTo2.city}}</p>
+                <details @click="checkFreeSeats(f.flight2.flightId, f.flight2.aircraft)">
+                    <summary>Details</summary>
+                    <p><span class="span-helper">flightId</span> {{f.flight2.flightId}} </p>
+                    <p><span class="span-helper">Free seats:</span> {{freeSeats.get(f.flight2.flightId)}} </p>
+                </details>
             </div>
         </div>
-        <div>
-            <button type="button">Booking</button>
+        <div v-show="button">
+            <button @click="booking(i, f.price1, f.price2)" type="button">Booking</button>
         </div>
     </div>
 </template>
 
 <script>
+    import {validity} from "../utils/validateToken";
+    import axios from "axios";
+    import {bearer} from "../utils/bearer";
+    import {refreshTokens} from "../utils/refreshTokens";
+
     export default {
         name: "Flights",
+        emits: ["booking"],
         computed: {
             prepareFlights() {
                 return this.$store.getters.getFlightsDto;
             },
         },
         data() {
-            return {}
+            return {
+                index: true,
+                button: true,
+                submitURL: 'http://localhost:6060/prepare-booking',
+                freeSeats: new Map(),
+            }
         },
         methods: {
             transfer(x, y) {
                 const date1 = Date.parse(x);
                 const date2 = Date.parse(y);
                 const diff = date2 - date1;
-                const h = (diff / 3600000).toFixed(0);
-                const m = Math.floor((diff / (60 * 1000)) % 60);
-                return h.concat("h ").concat(m.toString()).concat("m");
-            }
+                const d = Math.floor((diff / (1000 * 60 * 60 * 24)));
+                const m = Math.floor((diff / (1000 * 60)) % 60);
+                const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                if (d > 0) {
+                    return d + "D " + h + "H " + m + "m";
+                } else {
+                    return h + "H " + m + "m";
+                }
+            },
+            repeat() {
+                this.sendFlightInfo()
+            },
+            sendFlightInfo(price1, price2) {
+                let prices = [];
+                prices.push(price1);
+                prices.push(price2);
+                const accessToken = localStorage.getItem("accessToken");
+                const isValid = validity(accessToken);
+                if (isValid) {
+                    axios.post(this.submitURL, prices, {
+                        headers: {
+                            'Access-Control-Allow-Origin': 'http://localhost:8080',
+                            'Authorization': bearer(accessToken)
+                        },
+                    })
+                        .then(response => {
+                            console.log(response.status);
+                            if (response.status === 200) {
+                                this.$emit("booking", true);
+                            }
+                        });
+                } else {
+                    let promise = refreshTokens();
+                    promise.then(result => {
+                        if (result === 200) {
+                            console.log(result)
+                        }
+                    })
+                }
+            },
+            async checkFreeSeats(flightId, aircraft) {
+                const accessToken = localStorage.getItem("accessToken");
+                const isValid = validity(accessToken);
+                if (isValid) {
+                    await axios.get("http://localhost:6060/freeSeats", {
+                        headers: {
+                            'Access-Control-Allow-Origin': 'http://localhost:8080',
+                            'Authorization': bearer(accessToken)
+                        },
+                        params: {
+                            flightId: flightId,
+                            aircraft: aircraft
+                        }
+                    })
+                        .then(response => {
+                            console.log(response.status);
+                            if (response.status === 200) {
+                                this.freeSeats.set(flightId, response.data);
+                            }
+                        });
+                } else {
+                    let promise = refreshTokens();
+                    promise.then(result => {
+                        if (result === 200) {
+                            console.log(result)
+                        }
+                    })
+                }
+            },
+
+            booking(i, price1, price2) {
+                this.sendFlightInfo(price1, price2);
+                this.prepareFlights.splice(i + 1, this.prepareFlights.length);
+                this.prepareFlights.splice(0, i);
+                this.index = false;
+                this.$emit("booking", true);
+                this.button = false;
+            },
         }
     }
 </script>
@@ -123,6 +219,7 @@
         border: 1px solid black;
         border-radius: 2px;
         margin: 10px 100px;
+        font-size: 11pt;
     }
 
     .transfer {
@@ -190,7 +287,7 @@
     }
 
     details > summary {
-        background-color: #eeeeee;
+        background-color: gray;
         border: none;
         box-shadow: 1px 1px 2px #bbbbbb;
         cursor: pointer;

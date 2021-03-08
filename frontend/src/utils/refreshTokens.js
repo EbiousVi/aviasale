@@ -1,12 +1,12 @@
 import axios from 'axios'
 import {bearer} from "./bearer";
-import {store} from "../store/store";
 
 
-export function refreshTokens(token) {
+export function refreshTokens() {
+    const token = localStorage.getItem("refreshToken");
     const url = "http://localhost:6060/api/auth/refresh";
     const body = {
-        refreshToken: token
+        refreshToken: localStorage.getItem(token)
     }
     return axios.post(url, body, {
         headers: {
@@ -15,11 +15,8 @@ export function refreshTokens(token) {
         },
     })
         .then((response) => {
-            let accessToken = response.data.accessToken;
-            let refreshToken = response.data.refreshToken;
-
-            store.commit("setAccessToken", accessToken);
-            store.commit("setRefreshToken", refreshToken);
+            localStorage.setItem("accessToken", response.data.accessToken);
+            localStorage.setItem("refreshToken", response.data.refreshToken);
             return response.status;
         })
         .catch(() => {

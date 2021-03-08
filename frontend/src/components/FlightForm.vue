@@ -29,7 +29,7 @@
             </div>
         </form>
     </div>
-    <h2 v-if="warning">Nothing found by selected params</h2>
+    <h2 v-if="warning">{{message}}</h2>
 </template>
 
 <script>
@@ -55,6 +55,7 @@
                     numberOfTickets: 1
                 },
                 warning: false,
+                message: "",
             }
         },
         methods: {
@@ -70,7 +71,7 @@
             submitForm() {
                 this.warning = false;
                 this.$emit("loaded", [false, false, false]);
-                const accessToken = this.$store.getters.getAccessToken;
+                const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
                     axios.post(this.submitURL, this.form, {
@@ -80,25 +81,28 @@
                         },
                     })
                         .then((response) => {
-                            if (response.status === 200 && response.data.length > 0) {
-                                console.log(response.data[0].conn  + `AIUILJDIAUHDJM`)
+                            if (response.status === 200) {
                                 if (response.data[0].conn === true) {
                                     this.$store.commit("setFlightsDto", response.data);
+                                    this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, false, true]);
-                                } else {
+                                }
+                                if (response.data[0].interval !== undefined) {
                                     this.$store.commit("setFlights", response.data);
                                     this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, true, false]);
                                 }
-                            } else {
-                                this.warning = true;
+                                if (response.data.startsWith("Nothing")) {
+                                    this.warning = true;
+                                    this.message = response.data;
+                                }
                             }
                         })
                         .catch(() => {
-                            this.repeat();
+
                         });
                 } else {
-                    let promise = refreshTokens(this.$store.getters.getRefreshToken);
+                    let promise = refreshTokens();
                     promise.then(result => {
                         if (result === 200) {
                             this.repeat();
@@ -107,7 +111,7 @@
                 }
             },
             getBookings() {
-                const accessToken = this.$store.getters.getAccessToken;
+                const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
                     axios.get(this.bookingsURL, {
@@ -123,7 +127,7 @@
                         .catch(() => {
                         });
                 } else {
-                    let promise = refreshTokens(this.$store.getters.getRefreshToken);
+                    let promise = refreshTokens();
                     promise.then(result => {
                         if (result === 200) {
                             this.repeat();

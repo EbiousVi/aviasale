@@ -50,13 +50,11 @@
                 })
                     .then((response) => {
                         console.log(response);
-                        let accessToken = response.data.accessToken;
-                        let refreshToken = response.data.refreshToken;
-                        this.$store.commit("setAccessToken", accessToken);
-                        this.$store.commit("setRefreshToken", refreshToken);
+                        localStorage.setItem("accessToken", response.data.accessToken);
+                        localStorage.setItem("refreshToken", response.data.refreshToken);
                         this.$router.push('/main');
                     }).catch((e) => {
-                        console.log(e + ` ERROR LOGIN.VUE`)
+                    console.log(e + ` ERROR LOGIN.VUE`)
                 });
             }
         }

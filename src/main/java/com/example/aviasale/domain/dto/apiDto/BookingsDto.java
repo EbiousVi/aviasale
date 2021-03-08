@@ -6,7 +6,6 @@ import com.example.aviasale.domain.entity.Tickets;
 import java.util.List;
 
 public class BookingsDto {
-    private Boolean show;
     private Bookings booking;
     private List<Tickets> tickets;
 
@@ -16,7 +15,6 @@ public class BookingsDto {
     @Override
     public String toString() {
         return "BookingDto{" +
-                "show=" + show +
                 ", booking=" + booking +
                 ", tickets=" + tickets +
                 '}';
@@ -36,13 +34,5 @@ public class BookingsDto {
 
     public void setTickets(List<Tickets> tickets) {
         this.tickets = tickets;
-    }
-
-    public Boolean getShow() {
-        return show;
-    }
-
-    public void setShow(Boolean show) {
-        this.show = show;
     }
 }

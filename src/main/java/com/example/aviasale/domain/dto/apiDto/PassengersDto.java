@@ -1,22 +1,12 @@
 package com.example.aviasale.domain.dto.apiDto;
 
-public class PassengersData {
+public class PassengersDto {
     private String passengerName;
     private String passengerId;
     private String phone;
     private String email;
 
-    public PassengersData() {
-    }
-
-    @Override
-    public String toString() {
-        return "PassengersData{" +
-                "passengerName='" + passengerName + '\'' +
-                ", passengerId='" + passengerId + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                '}';
+    public PassengersDto() {
     }
 
     public String getPassengerName() {

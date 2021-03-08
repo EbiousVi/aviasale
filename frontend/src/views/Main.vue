@@ -1,24 +1,24 @@
 <template>
     <div class="main">
         <flight-form v-on:loaded="formHandler"></flight-form>
-        <find-flights v-if="showSingle" v-on:booking="bookingHandler"></find-flights>
+        <simple-flight v-if="showSingle" v-on:booking="bookingHandler"></simple-flight>
+        <connecting-flight v-if="showMultiply" v-on:booking="bookingHandler"></connecting-flight>
         <booking-form v-if="booking"></booking-form>
-        <flights v-if="showMultiply" v-on:booking="bookingHandler"></flights>
     </div>
 </template>
 
 <script>
     import FlightForm from "../components/FlightForm";
-    import FindFlights from "../components/FindFlights";
     import BookingForm from "../components/BookingForm";
-    import Flights from "../components/Flights";
+    import SimpleFlight from "../components/SimpleFlight";
+    import ConnectingFlight from "../components/ConnectingFlight";
 
     export default {
         name: 'App',
         components: {
-            Flights,
+            SimpleFlight,
             BookingForm,
-            FindFlights,
+            ConnectingFlight,
             FlightForm,
         },
         data() {

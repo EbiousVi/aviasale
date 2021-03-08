@@ -2,7 +2,7 @@
     <h1 v-if="warning">Nothing found by selected date!</h1>
     <h3 v-if="check">Nothing found by selected date! Result in interval around week by selected date.</h3>
     <div v-for="(fl,index) of prepareFlights" v-bind:key="fl">
-        <table v-if="table || fl.show" v-bind:class="index">
+        <table v-bind:class="index">
             <thead>
             <tr>
                 <td colspan="3" bgcolor="#00ffff">{{index + 1}}</td>
@@ -17,6 +17,7 @@
 
                     <div class="arrow">
                         <Arrow></Arrow>
+                        {{fl.flight.flightId}}
                     </div>
                 </td>
                 <td>
@@ -68,7 +69,7 @@
             </tr>
             <tr v-if="button">
                 <td colspan="3">
-                    <button type="button" v-on:click="fl.show = true, booking(fl.price)">Booking</button>
+                    <button type="button" v-on:click="booking(index, fl.price)">Booking</button>
                 </td>
             </tr>
         </table>
@@ -111,28 +112,20 @@
                 this.sendFlightInfo()
             },
             sendFlightInfo(data) {
-                let price = {
-                    flightId: 0,
-                    value: 0,
-                };
-                price = data;
-                const accessToken = this.$store.getters.getAccessToken;
+                let prices = [];
+                prices.push(data);
+                const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    axios
-                        .get(this.submitURL, {
-                            params: {
-                                flightId: price.flightId,
-                                value: price.value,
-                            },
-                            headers: {
-                                'Access-Control-Allow-Origin': 'http://localhost:8080',
-                                'Authorization': bearer(this.$store.getters.getAccessToken)
-                            },
-                        })
+                    axios.post(this.submitURL, prices, {
+                        headers: {
+                            'Access-Control-Allow-Origin': 'http://localhost:8080',
+                            'Authorization': bearer(accessToken)
+                        },
+                    })
                         .then(response => (console.log(response)));
                 } else {
-                    let promise = refreshTokens(this.$store.getters.getRefreshToken);
+                    let promise = refreshTokens();
                     promise.then(result => {
                         if (result === 200) {
                             this.repeat();
@@ -140,8 +133,10 @@
                     })
                 }
             },
-            booking(price) {
+            booking(i, price) {
                 this.sendFlightInfo(price);
+                this.prepareFlights.splice(i + 1, this.prepareFlights.length);
+                this.prepareFlights.splice(0, i);
                 this.$emit("booking", true);
                 this.button = false;
                 this.table = false;

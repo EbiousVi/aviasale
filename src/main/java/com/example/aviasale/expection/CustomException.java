@@ -1,13 +1,12 @@
 package com.example.aviasale.expection;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.AuthenticationException;
 
-public class JwtAuthenticationException extends AuthenticationException {
+public class CustomException extends Exception {
     private HttpStatus httpStatus;
 
-    public JwtAuthenticationException(String msg, HttpStatus httpStatus) {
-        super(msg);
+    public CustomException(String message, HttpStatus httpStatus) {
+        super(message);
         this.httpStatus = httpStatus;
     }
 

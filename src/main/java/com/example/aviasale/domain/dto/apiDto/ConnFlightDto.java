@@ -4,17 +4,7 @@ import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.domain.pojo.Price;
 
-public class FlightsDto {
-    private Boolean conn;
-
-    public Boolean getConn() {
-        return conn;
-    }
-
-    public void setConn(Boolean conn) {
-        this.conn = conn;
-    }
-
+public class ConnFlightDto {
     private Flights flight1;
     private Flights flight2;
     private Airports airFrom1;
@@ -23,8 +13,24 @@ public class FlightsDto {
     private Airports airTo2;
     private Price price1;
     private Price price2;
+    private Boolean conn;
 
-    public FlightsDto() {
+    @Override
+    public String toString() {
+        return "ConnFlightDto{" +
+                "flight1=" + flight1 +
+                ", flight2=" + flight2 +
+                ", airFrom1=" + airFrom1 +
+                ", airTo1=" + airTo1 +
+                ", airFrom2=" + airFrom2 +
+                ", airTo2=" + airTo2 +
+                ", price1=" + price1 +
+                ", price2=" + price2 +
+                ", conn=" + conn +
+                '}';
+    }
+
+    public ConnFlightDto() {
     }
 
     public Flights getFlight1() {
@@ -89,5 +95,13 @@ public class FlightsDto {
 
     public void setPrice2(Price price2) {
         this.price2 = price2;
+    }
+
+    public Boolean getConn() {
+        return conn;
+    }
+
+    public void setConn(Boolean conn) {
+        this.conn = conn;
     }
 }

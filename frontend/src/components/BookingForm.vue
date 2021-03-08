@@ -9,7 +9,7 @@
                     <label for="passengerName">Passenger Name
                         <input v-model="i.passengerName" id="passengerName" type="text"
                                name="passengerName"
-                               placeholder="Passenger Full Name"
+                               placeholder="Passenger Name"
                                autocomplete="off">
                     </label>
                     <label for="passengerId">Passport
@@ -44,6 +44,7 @@
         name: "BookingForm",
         emits: ["loaded"],
         created() {
+            console.log(this.getNumberOfTickets)
             for (let i = 0; i < this.getNumberOfTickets; i++) {
                 let passenger = {
                     passengerName: '',
@@ -71,7 +72,7 @@
                 this.submitForm()
             },
             submitForm() {
-                const accessToken = this.$store.getters.getAccessToken;
+                const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
                     axios.post(this.submitURL, this.passengers, {
@@ -91,7 +92,7 @@
 
                     });
                 } else {
-                    let promise = refreshTokens(this.$store.getters.getRefreshToken);
+                    let promise = refreshTokens();
                     promise.then(result => {
                         if (result === 200) {
                             this.repeat();

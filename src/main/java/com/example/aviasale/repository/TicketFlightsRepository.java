@@ -25,9 +25,9 @@ public interface TicketFlightsRepository extends JpaRepository<TicketFlights, Ti
             "group by fare_conditions) - count(*) as integer) from ticket_flights\n" +
             "where flight_id =:flightId and fare_conditions =:fareConditions\n" +
             "group by fare_conditions", nativeQuery = true)
-    Optional<Integer> availableSeats(@Param("flightId") Integer flightId,
-                                     @Param("aircraftCode") String aircraftCode,
-                                     @Param("fareConditions") String fareConditions);
+    Optional<Integer> freeSeats(@Param("flightId") Integer flightId,
+                                @Param("aircraftCode") String aircraftCode,
+                                @Param("fareConditions") String fareConditions);
 
     @Query("select count(s) from AircraftLayout s " +
             "where s.compositeKey.aircraftCode =:aircraftCode " +
@@ -37,6 +37,14 @@ public interface TicketFlightsRepository extends JpaRepository<TicketFlights, Ti
                                @Param("fareConditions") String fareConditions);
 
     @Query("select tf from TicketFlights tf where tf.compositeKey.ticketNumber =:ticketNo")
-    TicketFlights findByTicketNumber(@Param("ticketNo") String ticketNo);
+    Optional<TicketFlights> findByTicketNo(@Param("ticketNo") String ticketNo);
+
+    @Query(value = "select round(avg(a) - avg(a)%100)::int4 from \n" +
+            "(select amount as a from flights\n" +
+            "join ticket_flights using(flight_id)\n" +
+            "group by flight_no, flight_id, amount, fare_conditions\n" +
+            "having flight_no =:flightNo \n" +
+            "order by flight_no) as avg_by_flight_no", nativeQuery = true)
+    Optional<Integer> avgPriceByFlightNo(@Param("flightNo") String FlightNo);
 
 }

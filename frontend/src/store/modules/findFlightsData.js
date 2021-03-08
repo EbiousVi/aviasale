@@ -2,7 +2,6 @@ export default {
     state() {
         return {
             flights: [{
-                show: false,
                 interval: false,
                 flight: {
                     flightId: 0,
@@ -13,8 +12,6 @@ export default {
                     airportTo: "",
                     status: "",
                     aircraft: "",
-                    actualArrival: new Date(),
-                    actualDeparture: new Date(),
                 },
                 airportFrom: {
                     airportCode: "",
@@ -62,7 +59,6 @@ export default {
         },
         getInterval(state) {
             if (state.flights[0].interval === undefined) {
-                console.log("PIDARICQ");
                 return false;
             }
             return state.flights[0].interval;
