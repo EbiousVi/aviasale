@@ -1,0 +1,17 @@
+[33m17:56:02[0;39m [restartedMain] INFO  c.e.aviasale.AviasaleApplication - Starting AviasaleApplication using Java 1.8.0_282 on v-MS-7B86 with PID 14583 (/home/v/Рабочий стол/aviasale/target/classes started by v in /home/v/Рабочий стол/aviasale)
+[33m17:56:02[0;39m [restartedMain] INFO  c.e.aviasale.AviasaleApplication - No active profile set, falling back to default profiles: default
+[33m17:56:02[0;39m [restartedMain] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+[33m17:56:02[0;39m [restartedMain] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.41]
+[33m17:56:02[0;39m [restartedMain] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+[33m17:56:03[0;39m [restartedMain] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+[33m17:56:03[0;39m [restartedMain] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.4.27.Final
+[33m17:56:03[0;39m [restartedMain] INFO  o.h.s.integration.SpatialService - HHH80000001: hibernate-spatial integration enabled : true
+[33m17:56:03[0;39m [restartedMain] INFO  o.h.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+[33m17:56:03[0;39m [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+[33m17:56:03[0;39m [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+[33m17:56:03[0;39m [restartedMain] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.spatial.dialect.postgis.PostgisDialect
+[33m17:56:03[0;39m [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[33m17:56:04[0;39m [restartedMain] INFO  c.e.aviasale.AviasaleApplication - Started AviasaleApplication in 2.481 seconds (JVM running for 2.791)
+[33m17:56:25[0;39m [http-nio-6060-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[33m18:03:27[0;39m [SpringContextShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[33m18:03:27[0;39m [SpringContextShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

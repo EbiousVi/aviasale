@@ -1,7 +1,7 @@
 export default {
     state() {
         return {
-            flights: [{
+            oneWayFlight: [{
                 interval: false,
                 flight: {
                     flightId: 0,
@@ -33,15 +33,12 @@ export default {
                 }
             }],
             numberOfTickets: 0,
-            price: {
-                flightId: 0,
-                value: 0,
-            },
+            price: {},
         }
     },
     mutations: {
-        setFlights(state, payload) {
-            state.flights = payload;
+        setOneWayFlight(state, payload) {
+            state.oneWayFlight = payload;
         },
         setNumberOfTickets(state, payload) {
             state.numberOfTickets = payload;
@@ -51,20 +48,22 @@ export default {
         }
     },
     getters: {
-        getFlights(state) {
-            return state.flights;
+        getOneWayFlight(state) {
+            return state.oneWayFlight;
         },
         getNumberOfTickets(state) {
             return state.numberOfTickets;
         },
         getInterval(state) {
-            if (state.flights[0].interval === undefined) {
+            if (state.oneWayFlight[0].interval === undefined) {
                 return false;
             }
-            return state.flights[0].interval;
+            return state.oneWayFlight[0].interval;
         },
         getPrice(state) {
-            return state.price;
+            let prices = [];
+            prices.push(state.price)
+            return prices;
         }
     }
 }

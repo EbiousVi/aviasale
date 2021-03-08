@@ -1,6 +1,6 @@
 <template>
     <div class="card" v-for="(f, i) of prepareFlights" v-bind:key="f">
-        <div class="index" v-if="index">{{i + 1}}</div>
+        <div class="index">{{i + 1}}</div>
         <div class="main">
             <div class="main-left">
                 <p> {{f.flight1.departureDate}}</p>
@@ -81,15 +81,14 @@
 
     export default {
         name: "Flights",
-        emits: ["booking"],
+        emits: ["booking", "conn"],
         computed: {
             prepareFlights() {
-                return this.$store.getters.getFlightsDto;
+                return this.$store.getters.getConnectingFlight;
             },
         },
         data() {
             return {
-                index: true,
                 button: true,
                 submitURL: 'http://localhost:6060/prepare-booking',
                 freeSeats: new Map(),
@@ -107,37 +106,6 @@
                     return d + "D " + h + "H " + m + "m";
                 } else {
                     return h + "H " + m + "m";
-                }
-            },
-            repeat() {
-                this.sendFlightInfo()
-            },
-            sendFlightInfo(price1, price2) {
-                let prices = [];
-                prices.push(price1);
-                prices.push(price2);
-                const accessToken = localStorage.getItem("accessToken");
-                const isValid = validity(accessToken);
-                if (isValid) {
-                    axios.post(this.submitURL, prices, {
-                        headers: {
-                            'Access-Control-Allow-Origin': 'http://localhost:8080',
-                            'Authorization': bearer(accessToken)
-                        },
-                    })
-                        .then(response => {
-                            console.log(response.status);
-                            if (response.status === 200) {
-                                this.$emit("booking", true);
-                            }
-                        });
-                } else {
-                    let promise = refreshTokens();
-                    promise.then(result => {
-                        if (result === 200) {
-                            console.log(result)
-                        }
-                    })
                 }
             },
             async checkFreeSeats(flightId, aircraft) {
@@ -169,14 +137,19 @@
                     })
                 }
             },
-
+            setPrices(price1, price2) {
+                let prices = [];
+                prices.push(price1);
+                prices.push(price2);
+                this.$store.commit("setPrices", prices);
+            },
             booking(i, price1, price2) {
-                this.sendFlightInfo(price1, price2);
+                this.setPrices(price1, price2);
                 this.prepareFlights.splice(i + 1, this.prepareFlights.length);
                 this.prepareFlights.splice(0, i);
-                this.index = false;
-                this.$emit("booking", true);
                 this.button = false;
+                this.$emit("booking", true);
+                this.$emit("conn", true);
             },
         }
     }

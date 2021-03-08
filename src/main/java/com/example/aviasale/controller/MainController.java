@@ -1,16 +1,15 @@
 package com.example.aviasale.controller;
 
-import com.example.aviasale.domain.dto.apiDto.PassengersDto;
-import com.example.aviasale.domain.entity.Flights;
-import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.domain.dto.apiDto.BookingsDto;
+import com.example.aviasale.domain.dto.apiDto.PassengersDto;
 import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.entity.Airports;
+import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.domain.entity.User;
+import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.expection.*;
 import com.example.aviasale.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,6 @@ public class MainController {
     private final BookingsService bookingsService;
     private List<Price> price;
     private SearchFormDto searchFormDto;
-
 
     /*   private static final Logger logger
                = LoggerFactory.getLogger(FlightsController.class);*/
@@ -61,12 +59,13 @@ public class MainController {
 
     @GetMapping("/bookings")
     public List<BookingsDto> getBookingsByEmail(Principal principal) throws TicketsNotFoundException {
-        User user = userService.findByEmail(principal.getName());
+        User user = userService.getUserByEmail(principal.getName());
         return regBookingService.getAllBookingDtoByUser(user);
     }
 
     @PostMapping("/flights")
-    public ResponseEntity<?> getFlights(@RequestBody SearchFormDto searchFormDto) throws FlightsNotFoundException, AirportsNotFoundException, TicketFlightsNotFoundException {
+    public ResponseEntity<?> getFlights(@RequestBody SearchFormDto searchFormDto) throws CustomException {
+        System.out.println(searchFormDto);
         this.searchFormDto = searchFormDto;
         searchEngineService.setSearchFormDto(searchFormDto);
         return searchEngineService.getResult();
@@ -75,13 +74,14 @@ public class MainController {
     @PostMapping("/prepare-booking")
     @ResponseStatus(code = HttpStatus.OK)
     public void prepareBooking(@RequestBody List<Price> price) {
+        System.out.println(price);
         this.price = price;
     }
 
     @PostMapping("/booking")
     public List<BookingsDto> booking(@RequestBody List<PassengersDto> passengersDto, Principal principal) throws TicketsNotFoundException, BookingFailedException, FlightsNotFoundException, TicketFlightsNotFoundException {
-        User user = userService.findByEmail(principal.getName());
-        regBookingService.prepareBooking(user, passengersDto, searchFormDto, price);
+        User user = userService.getUserByEmail(principal.getName());
+        regBookingService.registrationBooking(user, passengersDto, searchFormDto, price);
         return regBookingService.getAllBookingDtoByUser(user);
     }
 

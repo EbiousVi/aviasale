@@ -1,7 +1,7 @@
 package com.example.aviasale.service;
 
 import com.example.aviasale.domain.dto.apiDto.ConnFlightDto;
-import com.example.aviasale.domain.dto.apiDto.SimpleFlightDto;
+import com.example.aviasale.domain.dto.apiDto.OneWayFlightDto;
 import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
 import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
@@ -63,23 +63,23 @@ public class SearchEngineService {
                     return new ResponseEntity<>("Nothing found by selected params", HttpStatus.OK);
                 }
             } else {
-                return new ResponseEntity<>(prepareFlight(flightsInterval, true), HttpStatus.OK);
+                return new ResponseEntity<>(prepareOneWayFlight(flightsInterval, true), HttpStatus.OK);
             }
         } else {
-            return new ResponseEntity<>(prepareFlight(flights, false), HttpStatus.OK);
+            return new ResponseEntity<>(prepareOneWayFlight(flights, false), HttpStatus.OK);
         }
     }
 
-    private List<SimpleFlightDto> prepareFlight(List<Flights> flights, Boolean interval) throws AirportsNotFoundException {
-        List<SimpleFlightDto> list = new ArrayList<>();
+    private List<OneWayFlightDto> prepareOneWayFlight(List<Flights> flights, Boolean interval) throws AirportsNotFoundException {
+        List<OneWayFlightDto> list = new ArrayList<>();
         for (Flights flight : flights) {
-            SimpleFlightDto simpleFlightDto = new SimpleFlightDto();
-            simpleFlightDto.setInterval(interval);
-            simpleFlightDto.setFlight(flight);
-            simpleFlightDto.setAirportFrom(airportsService.getAirportFrom(flight.getFlightId()));
-            simpleFlightDto.setAirportTo(airportsService.getAirportTo(flight.getFlightId()));
-            simpleFlightDto.setPrice(priceService.createPrice(flight.getFlightId(), flight.getFlightNo(), searchFormDto.getConditions()));
-            list.add(simpleFlightDto);
+            OneWayFlightDto oneWayFlightDto = new OneWayFlightDto();
+            oneWayFlightDto.setInterval(interval);
+            oneWayFlightDto.setFlight(flight);
+            oneWayFlightDto.setAirportFrom(airportsService.getAirportFrom(flight.getFlightId()));
+            oneWayFlightDto.setAirportTo(airportsService.getAirportTo(flight.getFlightId()));
+            oneWayFlightDto.setPrice(priceService.createPrice(flight.getFlightId(), flight.getFlightNo(), searchFormDto.getConditions()));
+            list.add(oneWayFlightDto);
         }
         return list;
     }
@@ -117,7 +117,6 @@ public class SearchEngineService {
     public List<Flights> findFlightsInterval() throws AirportsNotFoundException, FlightsNotFoundException {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-
         LocalDateTime date1 = searchDateStart().minusDays(4);
         LocalDateTime date2 = searchDateEnd().plusDays(4);
         return flightsService.getFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
@@ -159,7 +158,7 @@ public class SearchEngineService {
     public Map<String, Flights> connectingFlights() throws AirportsNotFoundException, FlightsNotFoundException, TicketFlightsNotFoundException {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-        List<String> intersect = flightsService.intersectArrivalAirports(airportsInCityFrom, airportsInCityTo);
+        List<String> intersect = flightsService.getIntersectArrivalAirports(airportsInCityFrom, airportsInCityTo);
         if (intersect.size() > 0) {
             List<String> MOSCOW = Arrays.asList("SVO", "DME", "VKO");
             List<String> MOSCOWFirst = intersect.stream()

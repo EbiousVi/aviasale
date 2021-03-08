@@ -32,6 +32,8 @@
             <button type="submit" name="button-submit">Confirm</button>
         </form>
     </div>
+    <button @click="sendPriceInfo">sendPriceInfo</button>
+    <h1>{{conn}}</h1>
 </template>
 
 <script>
@@ -43,8 +45,10 @@
     export default {
         name: "BookingForm",
         emits: ["loaded"],
-        created() {
-            console.log(this.getNumberOfTickets)
+        props: {
+            conn: Boolean,
+        },
+        mounted() {
             for (let i = 0; i < this.getNumberOfTickets; i++) {
                 let passenger = {
                     passengerName: '',
@@ -58,12 +62,14 @@
         computed: {
             getNumberOfTickets() {
                 return this.$store.getters.getNumberOfTickets;
-            },
+            }
         },
         data() {
             return {
                 passengers: [],
-                submitURL: 'http://localhost:6060/booking',
+                prices: [],
+                bookingURL: "http://localhost:6060/booking",
+                priceURL: "http://localhost:6060/prepare-booking",
                 error: '',
             }
         },
@@ -71,11 +77,34 @@
             repeat() {
                 this.submitForm()
             },
-            submitForm() {
+            sendPriceInfo() {
+                if (this.conn) {
+                    console.log(this.conn)
+                    console.log(this.$store.getters.getPrices + `DOUBLE PRICE`)
+                    this.prices = this.$store.getters.getPrices;
+                } else {
+                    console.log(this.conn)
+                    console.log(this.$store.getters.getPrice + `SOLO PRICE`)
+                    this.prices = this.$store.getters.getPrice;
+                }
+
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    axios.post(this.submitURL, this.passengers, {
+                    axios.post(this.priceURL, this.prices, {
+                        headers: {
+                            'Access-Control-Allow-Origin': 'http://localhost:8080',
+                            'Authorization': bearer(accessToken)
+                        }
+                    })
+                }
+            },
+            submitForm() {
+                this.sendPriceInfo();
+                const accessToken = localStorage.getItem("accessToken");
+                const isValid = validity(accessToken);
+                if (isValid) {
+                    axios.post(this.bookingURL, this.passengers, {
                         headers: {
                             'Access-Control-Allow-Origin': 'http://localhost:8080',
                             'Authorization': bearer(accessToken)

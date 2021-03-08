@@ -29,11 +29,11 @@ public class TicketFlightsService {
     }
 
     public void createTicketsFlights(List<Tickets> tickets, Price price, SearchFormDto searchFormDto) {
-        for (Tickets t : tickets) {
+        for (Tickets ticket : tickets) {
             TicketFlights ticketFlight = new TicketFlights();
             TicketFlights.CompositeKey compositeKey = new TicketFlights.CompositeKey();
             compositeKey.setFlightId(price.getFlightId());
-            compositeKey.setTicketNumber(t.getTicketNumber());
+            compositeKey.setTicketNumber(ticket.getTicketNumber());
             ticketFlight.setCompositeKey(compositeKey);
             ticketFlight.setFareConditions(searchFormDto.getConditions());
             ticketFlight.setAmount(price.getValue().doubleValue());

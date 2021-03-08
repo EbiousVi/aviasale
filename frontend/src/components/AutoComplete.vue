@@ -96,9 +96,15 @@
                 }
             },
             setInput(value) {
-                this.input = value
-                this.display = false;
-                this.$emit("autocomplete-input", this.input);
+                this.cities.filter(value1 => {
+                    return value1 === value1
+                })
+                if (this.cities.length > 0) {
+                    this.input = value
+                    this.display = false;
+                    this.$emit("autocomplete-input", this.input);
+                }
+
             },
             findCity(ev) {
                 ev.preventDefault();

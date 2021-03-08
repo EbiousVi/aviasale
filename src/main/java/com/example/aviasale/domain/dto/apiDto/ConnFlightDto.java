@@ -26,7 +26,7 @@ public class ConnFlightDto {
                 ", airTo2=" + airTo2 +
                 ", price1=" + price1 +
                 ", price2=" + price2 +
-                ", conn=" + conn +
+                ", isConnectionFlight=" + conn +
                 '}';
     }
 

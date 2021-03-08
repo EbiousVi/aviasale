@@ -1,5 +1,4 @@
 <template>
-    <h1 v-if="warning">Nothing found by selected date!</h1>
     <h3 v-if="check">Nothing found by selected date! Result in interval around week by selected date.</h3>
     <div v-for="(fl,index) of prepareFlights" v-bind:key="fl">
         <table v-bind:class="index">
@@ -14,11 +13,10 @@
                     {{fl.flight.departureDate}}
                 </td>
                 <td>
-
-                    <div class="arrow">
-                        <Arrow></Arrow>
-                        {{fl.flight.flightId}}
-                    </div>
+                    <span>FlightId</span>
+                    {{fl.flight.flightId}}<br>
+                    <span>Free seats</span>
+                    {{freeSeats.get(fl.flight.flightId)}}
                 </td>
                 <td>
                     <span>Arrival Date</span><br>
@@ -77,26 +75,28 @@
 </template>
 
 <script>
-    import Arrow from "./Arrow";
+
+    import {validity} from "../utils/validateToken";
     import axios from "axios";
     import {bearer} from "../utils/bearer";
-    import {validity} from "../utils/validateToken";
     import {refreshTokens} from "../utils/refreshTokens";
 
     export default {
-        name: "FindFlights",
-        emits: ["booking"],
-        components: {Arrow},
+        name: "OneWayFlight",
+        emits: ["booking", "conn"],
         computed: {
             prepareFlights() {
-                return this.$store.getters.getFlights;
-            },
-            warning() {
-                let flights = this.$store.getters.getFlights;
-                return flights.length === 0;
+                return this.$store.getters.getOneWayFlight;
             },
             check() {
                 return this.$store.getters.getInterval;
+            },
+
+        },
+        mounted() {
+            let flight = this.$store.getters.getOneWayFlight;
+            for (let i = 0; i < flight.length; i++) {
+                this.checkFreeSeats(flight[i].flight.flightId, flight[i].flight.aircraft)
             }
         },
         data() {
@@ -104,42 +104,48 @@
                 button: true,
                 table: true,
                 input: "",
-                submitURL: 'http://localhost:6060/prepare-booking'
+                submitURL: 'http://localhost:6060/prepare-booking',
+                freeSeats: new Map(),
             }
         },
         methods: {
-            repeat() {
-                this.sendFlightInfo()
+            booking(i, price) {
+                this.$store.commit("setPrice", price);
+                this.prepareFlights.splice(i + 1, this.prepareFlights.length);
+                this.prepareFlights.splice(0, i);
+                this.$emit("booking", true);
+                this.$emit("conn", false);
+                this.button = false;
+                this.table = false;
             },
-            sendFlightInfo(data) {
-                let prices = [];
-                prices.push(data);
+            async checkFreeSeats(flightId, aircraft) {
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    axios.post(this.submitURL, prices, {
+                    await axios.get("http://localhost:6060/freeSeats", {
                         headers: {
                             'Access-Control-Allow-Origin': 'http://localhost:8080',
                             'Authorization': bearer(accessToken)
                         },
+                        params: {
+                            flightId: flightId,
+                            aircraft: aircraft
+                        }
                     })
-                        .then(response => (console.log(response)));
+                        .then(response => {
+                            console.log(response.status);
+                            if (response.status === 200) {
+                                this.freeSeats.set(flightId, response.data);
+                            }
+                        });
                 } else {
                     let promise = refreshTokens();
                     promise.then(result => {
                         if (result === 200) {
-                            this.repeat();
+                            console.log(result)
                         }
                     })
                 }
-            },
-            booking(i, price) {
-                this.sendFlightInfo(price);
-                this.prepareFlights.splice(i + 1, this.prepareFlights.length);
-                this.prepareFlights.splice(0, i);
-                this.$emit("booking", true);
-                this.button = false;
-                this.table = false;
             },
         },
 
@@ -185,11 +191,6 @@
         font-size: 10pt;
         font-style: italic;
         font-weight: normal;
-    }
-
-    .arrow {
-        display: flex;
-        justify-content: center;
     }
 
     button:active {

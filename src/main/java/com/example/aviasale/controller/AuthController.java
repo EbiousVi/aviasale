@@ -43,7 +43,7 @@ public class AuthController {
     public ResponseEntity<?> authenticate(@RequestBody LoginFormDto loginFormDto, HttpServletRequest request) {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginFormDto.getEmail(), loginFormDto.getPassword()));
-            User user = userService.findByEmail(loginFormDto.getEmail());
+            User user = userService.getUserByEmail(loginFormDto.getEmail());
             return getTokens(user, loginFormDto.getEmail());
         } catch (BadCredentialsException e) {
             e.printStackTrace();
@@ -59,7 +59,7 @@ public class AuthController {
         boolean isValid = jwtTokenProvider.validateRefreshToken(refreshToken);
 
         if (isValid) {
-            User user = userService.findByEmail(jwtTokenProvider.getEmailFromToken(refreshToken));
+            User user = userService.getUserByEmail(jwtTokenProvider.getEmailFromToken(refreshToken));
             if (user.getRefreshToken().equals(refreshToken)) {
                 return getTokens(user, user.getEmail());
             }
@@ -71,7 +71,7 @@ public class AuthController {
         String accessToken = jwtTokenProvider.generateAccessToken(email, user.getRoles());
         String refreshToken = jwtTokenProvider.generateRefreshToken(email, user.getRoles());
         user.setRefreshToken(refreshToken);
-        userService.update(user);
+        userService.updateUser(user);
         Map<Object, Object> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);

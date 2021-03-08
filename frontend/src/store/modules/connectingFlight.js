@@ -1,7 +1,7 @@
 export default {
     state() {
         return {
-            flightsDto: {
+            connectingFlight: [{
                 flight1: {
                     flightId: 0,
                     flightNo: "",
@@ -54,17 +54,24 @@ export default {
                     flightId: 0,
                     value: 0.0
                 }
-            }
+            }],
+            prices: [],
         }
     },
     mutations: {
-        setFlightsDto(state, payload) {
-            state.flightsDto = payload;
+        setConnectingFlight(state, payload) {
+            state.connectingFlight = payload;
+        },
+        setPrices(state, payload) {
+            state.prices = payload;
         }
     },
     getters: {
-        getFlightsDto(state) {
-            return state.flightsDto;
+        getConnectingFlight(state) {
+            return state.connectingFlight;
+        },
+        getPrices(state) {
+            return state.prices;
         }
     }
 }

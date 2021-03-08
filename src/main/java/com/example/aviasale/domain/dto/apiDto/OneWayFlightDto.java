@@ -4,19 +4,19 @@ import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
 
-public class SimpleFlightDto {
+public class OneWayFlightDto {
     private Boolean interval;
     private Flights flight;
     private Airports airportFrom;
     private Airports airportTo;
     private Price price;
 
-    public SimpleFlightDto() {
+    public OneWayFlightDto() {
     }
 
     @Override
     public String toString() {
-        return "SimpleFlightDto{" +
+        return "OneWayFlightDto{" +
                 "interval=" + interval +
                 ", flight=" + flight +
                 ", airportFrom=" + airportFrom +

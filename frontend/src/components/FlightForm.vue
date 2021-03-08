@@ -83,12 +83,12 @@
                         .then((response) => {
                             if (response.status === 200) {
                                 if (response.data[0].conn === true) {
-                                    this.$store.commit("setFlightsDto", response.data);
+                                    this.$store.commit("setConnectingFlight", response.data);
                                     this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, false, true]);
                                 }
                                 if (response.data[0].interval !== undefined) {
-                                    this.$store.commit("setFlights", response.data);
+                                    this.$store.commit("setOneWayFlight", response.data);
                                     this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, true, false]);
                                 }

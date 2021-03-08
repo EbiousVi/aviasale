@@ -1,42 +1,49 @@
 <template>
     <div class="main">
         <flight-form v-on:loaded="formHandler"></flight-form>
-        <simple-flight v-if="showSingle" v-on:booking="bookingHandler"></simple-flight>
-        <connecting-flight v-if="showMultiply" v-on:booking="bookingHandler"></connecting-flight>
-        <booking-form v-if="booking"></booking-form>
+        <one-way-flight v-if="oneWayFlightDto" v-on:booking="bookingHandler"
+                        v-on:conn="isConnectionFlight"></one-way-flight>
+        <connecting-flight v-if="connectingFlight" v-on:booking="bookingHandler"
+                           v-on:conn="isConnectionFlight"></connecting-flight>
+        <booking-form v-if="booking" v-bind:conn="conn"></booking-form>
     </div>
 </template>
 
 <script>
     import FlightForm from "../components/FlightForm";
     import BookingForm from "../components/BookingForm";
-    import SimpleFlight from "../components/SimpleFlight";
     import ConnectingFlight from "../components/ConnectingFlight";
+    import OneWayFlight from "../components/OneWayFlight";
 
     export default {
         name: 'App',
         components: {
-            SimpleFlight,
-            BookingForm,
-            ConnectingFlight,
             FlightForm,
+            OneWayFlight,
+            ConnectingFlight,
+            BookingForm,
         },
         data() {
             return {
-                showSingle: false,
-                showMultiply: false,
+                oneWayFlightDto: false,
+                connectingFlight: false,
                 booking: false,
+                conn: false,
             }
         },
         methods: {
             formHandler(data) {
                 console.log(data)
                 this.booking = data[0];
-                this.showSingle = data[1];
-                this.showMultiply = data[2];
+                this.oneWayFlightDto = data[1];
+                this.connectingFlight = data[2];
             },
             bookingHandler(data) {
                 this.booking = data;
+            },
+            isConnectionFlight(data) {
+                console.log(data)
+                this.conn = data;
             }
         },
     }

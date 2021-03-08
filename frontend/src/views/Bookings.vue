@@ -60,19 +60,19 @@
                     </div>
                     <div class="block">
                         <div class="block_title">Airport From</div>
-                        <div class="block_text">{{flights.get(t.ticketNumber).airportFrom}}</div>
+                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).airportFrom}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Airport To</div>
-                        <div class="block_text">{{flights.get(t.ticketNumber).airportTo}}</div>
+                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).airportTo}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Departure Date</div>
-                        <div class="block_text">{{flights.get(t.ticketNumber).departureDate}}</div>
+                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).departureDate}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Arrival Date</div>
-                        <div class="block_text">{{flights.get(t.ticketNumber).arrivalDate}}</div>
+                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).arrivalDate}}</div>
                     </div>
                 </div>
             </div>

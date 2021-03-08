@@ -23,11 +23,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User findByEmail(String email) {
+    public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("USER NOT FOUND"));
     }
 
-    public void update(User user) {
+    public void updateUser(User user) {
         userRepository.save(user);
     }
 

@@ -14,7 +14,7 @@ public class BookingsDto {
 
     @Override
     public String toString() {
-        return "BookingDto{" +
+        return "userBookings{" +
                 ", booking=" + booking +
                 ", tickets=" + tickets +
                 '}';

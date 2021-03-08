@@ -1,6 +1,10 @@
 package com.example.aviasale.domain.dto.apiDto;
 
+
+
+
 public class SearchFormDto {
+
     private String cityFrom;
     private String cityTo;
     private String date;

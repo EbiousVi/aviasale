@@ -23,18 +23,18 @@ public class AirportsService {
 
     public List<String> getAllAirportsInCity(String city) throws AirportsNotFoundException {
         List<Airports> airports = airportsRepository.findAllByCityContainsIgnoreCase(city)
-                .orElseThrow(() -> new AirportsNotFoundException("AirportsData not found by City " + city, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AirportsNotFoundException("AirportsData not found by city = " + city, HttpStatus.NOT_FOUND));
         return airports.stream().map(Airports::getAirportCode).collect(Collectors.toList());
     }
 
     public Airports getAirportFrom(Integer flightId) throws AirportsNotFoundException {
         return airportsRepository.findAirportFromByFlightId(flightId)
-                .orElseThrow(() -> new AirportsNotFoundException("AirportData not found by FlightId " + flightId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AirportsNotFoundException("AirportData not found by flightId = " + flightId, HttpStatus.NOT_FOUND));
     }
 
     public Airports getAirportTo(Integer flightId) throws AirportsNotFoundException {
         return airportsRepository.findAirportToByFlightId(flightId)
-                .orElseThrow(() -> new AirportsNotFoundException("AirportData not found by FlightId " + flightId, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new AirportsNotFoundException("AirportData not found by flightId = " + flightId, HttpStatus.NOT_FOUND));
     }
 
     public List<Airports> getAllAirportsFromDB() {

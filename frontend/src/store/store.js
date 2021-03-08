@@ -1,13 +1,13 @@
 import {createStore, createLogger} from 'vuex'
-import flightData from "./modules/findFlightsData";
-import bookingData from "./modules/userBookings";
-import flightsDto from "./modules/flightsDto";
+import oneWayFlight from "./modules/oneWayFlight";
+import connectingFlight from "./modules/connectingFlight";
+import userBookings from "./modules/userBookings";
 
 export const store = createStore({
     plugins: [createLogger()],
     modules: {
-        flightData,
-        bookingData,
-        flightsDto
+        oneWayFlight,
+        userBookings,
+        connectingFlight
     }
 })

@@ -33,7 +33,7 @@ public interface FlightsRepository extends JpaRepository<Flights, Integer> {
             "INTERSECT\n" +
             "select distinct arrival_airport from flights\n" +
             "where departure_airport in :end", nativeQuery = true)
-    Optional<List<String>> intersectArrivalAirports(@Param("start") List<String> start, @Param("end") List<String> end);
+    Optional<List<String>> findIntersectArrivalAirports(@Param("start") List<String> start, @Param("end") List<String> end);
 
     @Query(value = "select round(avg(a) - avg(a)%100) from \n" +
             "(select amount as a from flights\n" +
@@ -46,5 +46,5 @@ public interface FlightsRepository extends JpaRepository<Flights, Integer> {
     @Query(value = "select * from flights\n" +
             "where flights.flight_id = (select flight_id from ticket_flights\n" +
             "where ticket_no =:ticketNo)", nativeQuery = true)
-    Optional<Flights> findFlightByTicketNo(@Param("ticketNo") String ticketNo);
+    Optional<Flights> findByTicketNo(@Param("ticketNo") String ticketNo);
 }

@@ -1,6 +1,7 @@
 package com.example.aviasale.controller;
 
 import com.example.aviasale.expection.CustomException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,5 +14,4 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleCustomException(CustomException ex) {
         return ResponseEntity.status(ex.getHttpStatus()).body(ex.getMessage());
     }
-
 }

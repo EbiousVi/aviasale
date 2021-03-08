@@ -1,7 +1,7 @@
 export default {
     state() {
         return {
-            BookingDto: {
+            userBookings: {
                 show : true,
                 booking: {
                     bookRef: "",
