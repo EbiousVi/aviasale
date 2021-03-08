@@ -60,19 +60,19 @@
                     </div>
                     <div class="block">
                         <div class="block_title">Airport From</div>
-                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).airportFrom}}</div>
+                        <div class="block_text">{{flights.get(t.ticketNumber).airportFrom}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Airport To</div>
-                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).airportTo}}</div>
+                        <div class="block_text">{{flights.get(t.ticketNumber).airportTo}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Departure Date</div>
-                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).departureDate}}</div>
+                        <div class="block_text">{{flights.get(t.ticketNumber).departureDate}}</div>
                     </div>
                     <div class="block">
                         <div class="block_title">Arrival Date</div>
-                        <div class="block_text">{{oneWayFlightDto.get(t.ticketNumber).arrivalDate}}</div>
+                        <div class="block_text">{{flights.get(t.ticketNumber).arrivalDate}}</div>
                     </div>
                 </div>
             </div>
@@ -91,21 +91,6 @@
     export default {
         name: "Reservation",
         emits: ["loaded"],
-        async mounted() {
-            const store = this.$store.getters.getBookingDto;
-            for (let i = 0; i < store.length; i++) {
-                for (let j = 0; j < store[i].tickets.length; j++) {
-                    await this.getDetails(store[i].tickets[j].ticketNumber);
-                }
-            }
-            this.loaded = true;
-        },
-        computed: {
-            getBookingDto() {
-                return this.$store.getters.getBookingDto;
-            }
-        }
-        ,
         data() {
             return {
                 loaded: false,
@@ -121,8 +106,21 @@
                     aircraft: "",
                 },
             }
-        }
-        ,
+        },
+        async mounted() {
+            const store = this.$store.getters.getBookingDto;
+            for (let i = 0; i < store.length; i++) {
+                for (let j = 0; j < store[i].tickets.length; j++) {
+                    await this.getDetails(store[i].tickets[j].ticketNumber);
+                }
+            }
+            this.loaded = true;
+        },
+        computed: {
+            getBookingDto() {
+                return this.$store.getters.getBookingDto;
+            }
+        },
         methods: {
             backToMain() {
                 this.$emit("loaded", [false, false]);
@@ -207,7 +205,6 @@
         width: auto;
     }
 
-
     .circle {
         background: #12B6F9;
         padding: 15px;
@@ -285,7 +282,6 @@
         border: 1px solid black;
         text-align: center;
     }
-
 
     button:active {
         background-color: #00ffff;

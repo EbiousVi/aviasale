@@ -13,3 +13,5 @@
 [33m18:03:31[0;39m [restartedMain] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
 [33m18:03:31[0;39m [restartedMain] INFO  c.e.aviasale.AviasaleApplication - Started AviasaleApplication in 2.516 seconds (JVM running for 2.82)
 [33m18:03:43[0;39m [http-nio-6060-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[33m18:40:36[0;39m [SpringContextShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+[33m18:40:36[0;39m [SpringContextShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

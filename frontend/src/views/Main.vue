@@ -42,7 +42,6 @@
                 this.booking = data;
             },
             isConnectionFlight(data) {
-                console.log(data)
                 this.conn = data;
             }
         },

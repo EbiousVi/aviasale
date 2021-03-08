@@ -10,7 +10,7 @@
             </div>
             <div class="main-mid">
                 <p><span class="span-helper">Total Duration</span>
-                    {{transfer(f.flight1.departureDate, f.flight2.arrivalDate)}}</p>
+                    {{duration(f.flight1.departureDate, f.flight2.arrivalDate)}}</p>
                 <p><span class="span-helper">Total Price</span>
                     {{f.price1.value + f.price2.value}}</p>
                 <p> ---->>>> </p>
@@ -27,7 +27,7 @@
                 <span> {{f.flight1.flightNo}} </span>
                 <span>
                     <span class="span-helper">Travel time</span>
-                    {{transfer(f.flight1.departureDate, f.flight1.arrivalDate)}}
+                    {{duration(f.flight1.departureDate, f.flight1.arrivalDate)}}
                 </span>
                 <span> <span class="span-helper">Aircraft</span> {{f.flight1.aircraft}} </span>
             </div>
@@ -36,7 +36,7 @@
                     {{f.airFrom1.airportName}} {{f.airFrom1.city}}</p>
                 <p>{{f.flight1.arrivalDate}} {{f.airTo1.airportCode}}
                     {{f.airTo1.airportName}} {{f.airTo1.city}}</p>
-                <details @click="checkFreeSeats(f.flight1.flightId, f.flight1.aircraft)">
+                <details @click="getFreeSeats(f.flight1.flightId, f.flight1.aircraft)">
                     <summary>Details</summary>
                     <p><span class="span-helper">flightId</span> {{f.flight1.flightId}} </p>
                     <p><span class="span-helper">Free seats:</span> {{freeSeats.get(f.flight1.flightId)}} </p>
@@ -45,13 +45,13 @@
         </div>
         <div class="transfer">
             <p>Transfer in {{ f.airTo1.city }}({{f.airTo1.airportCode}}),
-                waiting time {{transfer(f.flight1.arrivalDate, f.flight2.departureDate)}}</p></div>
+                waiting time {{duration(f.flight1.arrivalDate, f.flight2.departureDate)}}</p></div>
         <div class="flight-2">
             <div class="f-header">
                 <span> {{f.flight2.flightNo}} </span>
                 <span>
                     <span class="span-helper">Travel time</span>
-                    {{transfer(f.flight2.departureDate, f.flight2.arrivalDate)}}
+                    {{duration(f.flight2.departureDate, f.flight2.arrivalDate)}}
                 </span>
                 <span> <span class="span-helper">Aircraft</span> {{f.flight2.aircraft}} </span>
             </div>
@@ -60,7 +60,7 @@
                     {{f.airFrom2.airportName}} {{f.airFrom2.city}}</p>
                 <p>{{f.flight2.arrivalDate}} {{f.airTo2.airportCode}}
                     {{f.airTo2.airportName}} {{f.airTo2.city}}</p>
-                <details @click="checkFreeSeats(f.flight2.flightId, f.flight2.aircraft)">
+                <details @click="getFreeSeats(f.flight2.flightId, f.flight2.aircraft)">
                     <summary>Details</summary>
                     <p><span class="span-helper">flightId</span> {{f.flight2.flightId}} </p>
                     <p><span class="span-helper">Free seats:</span> {{freeSeats.get(f.flight2.flightId)}} </p>
@@ -82,20 +82,20 @@
     export default {
         name: "Flights",
         emits: ["booking", "conn"],
+        data() {
+            return {
+                button: true,
+                submitURL: "http://localhost:6060/freeSeats",
+                freeSeats: new Map(),
+            }
+        },
         computed: {
             prepareFlights() {
                 return this.$store.getters.getConnectingFlight;
             },
         },
-        data() {
-            return {
-                button: true,
-                submitURL: 'http://localhost:6060/prepare-booking',
-                freeSeats: new Map(),
-            }
-        },
         methods: {
-            transfer(x, y) {
+            duration(x, y) {
                 const date1 = Date.parse(x);
                 const date2 = Date.parse(y);
                 const diff = date2 - date1;
@@ -108,11 +108,11 @@
                     return h + "H " + m + "m";
                 }
             },
-            async checkFreeSeats(flightId, aircraft) {
+            async getFreeSeats(flightId, aircraft) {
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    await axios.get("http://localhost:6060/freeSeats", {
+                    await axios.get(this.submitURL, {
                         headers: {
                             'Access-Control-Allow-Origin': 'http://localhost:8080',
                             'Authorization': bearer(accessToken)
@@ -123,7 +123,6 @@
                         }
                     })
                         .then(response => {
-                            console.log(response.status);
                             if (response.status === 200) {
                                 this.freeSeats.set(flightId, response.data);
                             }
@@ -143,10 +142,16 @@
                 prices.push(price2);
                 this.$store.commit("setPrices", prices);
             },
-            booking(i, price1, price2) {
-                this.setPrices(price1, price2);
+            leaveSelectedFlight(i) {
+                if (i === 1) {
+                    return;
+                }
                 this.prepareFlights.splice(i + 1, this.prepareFlights.length);
                 this.prepareFlights.splice(0, i);
+            },
+            booking(i, price1, price2) {
+                this.setPrices(price1, price2);
+                this.leaveSelectedFlight(i);
                 this.button = false;
                 this.$emit("booking", true);
                 this.$emit("conn", true);

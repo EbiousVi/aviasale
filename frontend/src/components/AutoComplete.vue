@@ -104,7 +104,6 @@
                     this.display = false;
                     this.$emit("autocomplete-input", this.input);
                 }
-
             },
             findCity(ev) {
                 ev.preventDefault();

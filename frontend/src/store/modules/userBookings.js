@@ -1,8 +1,8 @@
 export default {
     state() {
         return {
-            userBookings: {
-                show : true,
+            bookingDto: {
+                show: true,
                 booking: {
                     bookRef: "",
                     bookDate: Date,
@@ -20,12 +20,12 @@ export default {
     },
     mutations: {
         setBookingDto(state, payload) {
-            state.BookingDto = payload;
+            state.bookingDto = payload;
         }
     },
     getters: {
         getBookingDto(state) {
-            return state.BookingDto;
+            return state.bookingDto;
         }
     }
 

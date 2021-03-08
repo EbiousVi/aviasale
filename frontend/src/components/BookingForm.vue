@@ -32,8 +32,6 @@
             <button type="submit" name="button-submit">Confirm</button>
         </form>
     </div>
-    <button @click="sendPriceInfo">sendPriceInfo</button>
-    <h1>{{conn}}</h1>
 </template>
 
 <script>
@@ -47,6 +45,15 @@
         emits: ["loaded"],
         props: {
             conn: Boolean,
+        },
+        data() {
+            return {
+                passengers: [],
+                prices: [],
+                bookingURL: "http://localhost:6060/booking",
+                priceURL: "http://localhost:6060/prepare-booking",
+                error: '',
+            }
         },
         mounted() {
             for (let i = 0; i < this.getNumberOfTickets; i++) {
@@ -64,30 +71,22 @@
                 return this.$store.getters.getNumberOfTickets;
             }
         },
-        data() {
-            return {
-                passengers: [],
-                prices: [],
-                bookingURL: "http://localhost:6060/booking",
-                priceURL: "http://localhost:6060/prepare-booking",
-                error: '',
-            }
-        },
+
         methods: {
             repeat() {
                 this.submitForm()
             },
-            sendPriceInfo() {
+            setPrice() {
                 if (this.conn) {
-                    console.log(this.conn)
                     console.log(this.$store.getters.getPrices + `DOUBLE PRICE`)
                     this.prices = this.$store.getters.getPrices;
                 } else {
-                    console.log(this.conn)
                     console.log(this.$store.getters.getPrice + `SOLO PRICE`)
                     this.prices = this.$store.getters.getPrice;
                 }
-
+            },
+            sendPriceInfo() {
+                this.setPrice();
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {

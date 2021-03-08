@@ -1,5 +1,5 @@
 <template>
-    <h3 v-if="check">Nothing found by selected date! Result in interval around week by selected date.</h3>
+    <h3 v-if="isInterval">Nothing found by selected date! Result in interval around week by selected date.</h3>
     <div v-for="(fl,index) of prepareFlights" v-bind:key="fl">
         <table v-bind:class="index">
             <thead>
@@ -84,29 +84,28 @@
     export default {
         name: "OneWayFlight",
         emits: ["booking", "conn"],
-        computed: {
-            prepareFlights() {
-                return this.$store.getters.getOneWayFlight;
-            },
-            check() {
-                return this.$store.getters.getInterval;
-            },
-
-        },
-        mounted() {
-            let flight = this.$store.getters.getOneWayFlight;
-            for (let i = 0; i < flight.length; i++) {
-                this.checkFreeSeats(flight[i].flight.flightId, flight[i].flight.aircraft)
-            }
-        },
         data() {
             return {
                 button: true,
                 table: true,
-                input: "",
                 submitURL: 'http://localhost:6060/prepare-booking',
                 freeSeats: new Map(),
             }
+        },
+        mounted() {
+            let flights = this.$store.getters.getOneWayFlight;
+            for (let i = 0; i < flights.length; i++) {
+                this.getFreeSeats(flights[i].flight.flightId, flights[i].flight.aircraft)
+            }
+        },
+        computed: {
+            prepareFlights() {
+                return this.$store.getters.getOneWayFlight;
+            },
+            isInterval() {
+                return this.$store.getters.getInterval;
+            },
+
         },
         methods: {
             booking(i, price) {
@@ -118,7 +117,14 @@
                 this.button = false;
                 this.table = false;
             },
-            async checkFreeSeats(flightId, aircraft) {
+            leaveSelectedFlight(i) {
+                if (i === 1) {
+                    return;
+                }
+                this.prepareFlights.splice(i + 1, this.prepareFlights.length);
+                this.prepareFlights.splice(0, i);
+            },
+            async getFreeSeats(flightId, aircraft) {
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
@@ -133,7 +139,6 @@
                         }
                     })
                         .then(response => {
-                            console.log(response.status);
                             if (response.status === 200) {
                                 this.freeSeats.set(flightId, response.data);
                             }

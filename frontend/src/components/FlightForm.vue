@@ -45,7 +45,7 @@
         emits: ["loaded"],
         data() {
             return {
-                submitURL: 'http://localhost:6060/flights',
+                flightsURL: 'http://localhost:6060/flights',
                 bookingsURL: 'http://localhost:6060/bookings',
                 form: {
                     cityFrom: String,
@@ -74,7 +74,7 @@
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    axios.post(this.submitURL, this.form, {
+                    axios.post(this.flightsURL, this.form, {
                         headers: {
                             'Access-Control-Allow-Origin': 'http://localhost:8080',
                             'Authorization': bearer(accessToken)
