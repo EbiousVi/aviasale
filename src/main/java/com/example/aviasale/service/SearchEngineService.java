@@ -178,7 +178,7 @@ public class SearchEngineService {
 
     public Map<String, Flights> connFlightsFilter(List<String> airports, List<String> airFrom, List<String> airTo) throws FlightsNotFoundException, TicketFlightsNotFoundException {
         List<Flights> first = flightsService.getFlightsByParam(airFrom, airports, searchDateStart().minusDays(1), searchDateEnd().plusDays(1));
-        List<Flights> second = flightsService.getFlightsByParam(airports, airTo, searchDateStart().minusDays(1), searchDateEnd().plusDays(1));
+        List<Flights> second = flightsService.getFlightsByParam(airports, airTo, searchDateStart(), searchDateEnd());
         if (!first.isEmpty() && !second.isEmpty()) {
             Map<String, Flights> map = new LinkedHashMap<>();
             long prevDiff = 24;
@@ -187,7 +187,6 @@ public class SearchEngineService {
                     Duration duration = Duration.between(f.getArrivalDate(), s.getDepartureDate());
                     long diff = duration.toHours();
                     if (diff >= 1 && diff < 24 && diff <= prevDiff) {
-                        System.err.println("duration = " + duration.toHours());
                         Integer availableSeats = ticketFlightsService.getFreeSeats(f.getFlightId(), f.getAircraft(), searchFormDto.getConditions());
                         if (searchFormDto.getNumberOfTickets() <= availableSeats) {
                             String key = "|" + UUID.randomUUID().toString().substring(0, 4);

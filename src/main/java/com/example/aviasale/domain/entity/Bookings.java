@@ -21,7 +21,7 @@ public class Bookings {
     private Double totalAmount;
 
     @JsonBackReference
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
