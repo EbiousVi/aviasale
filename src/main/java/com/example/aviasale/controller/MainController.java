@@ -27,11 +27,10 @@ public class MainController {
     private final TicketFlightsService ticketFlightsService;
     private final FlightsService flightsService;
     private final BookingsService bookingsService;
+
     private List<Price> price;
     private SearchFormDto searchFormDto;
 
-    /*   private static final Logger logger
-               = LoggerFactory.getLogger(FlightsController.class);*/
     @Autowired
     public MainController(SearchEngineService searchEngineService, AirportsService airportsService,
                           RegBookingService regBookingService, UserService userService,
@@ -65,16 +64,14 @@ public class MainController {
 
     @PostMapping("/flights")
     public ResponseEntity<?> getFlights(@RequestBody SearchFormDto searchFormDto) throws CustomException {
-        System.out.println(searchFormDto);
         this.searchFormDto = searchFormDto;
         searchEngineService.setSearchFormDto(searchFormDto);
-        return searchEngineService.getResult();
+        return searchEngineService.getFlights();
     }
 
     @PostMapping("/prepare-booking")
     @ResponseStatus(code = HttpStatus.OK)
     public void prepareBooking(@RequestBody List<Price> price) {
-        System.out.println(price);
         this.price = price;
     }
 

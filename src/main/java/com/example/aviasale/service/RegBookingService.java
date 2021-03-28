@@ -35,8 +35,10 @@ public class RegBookingService {
         this.flightsService = flightsService;
     }
 
+    public void registrationBooking(User user, List<PassengersDto> passengersDto,
+                                    SearchFormDto searchFormDto, List<Price> prices)
+            throws BookingFailedException, FlightsNotFoundException {
 
-    public void registrationBooking(User user, List<PassengersDto> passengersDto, SearchFormDto searchFormDto, List<Price> prices) throws BookingFailedException, FlightsNotFoundException, TicketFlightsNotFoundException {
         if (prices.size() == 1) {
             prepareBooking(user, passengersDto, searchFormDto, prices);
         } else if (prices.size() == 2) {
@@ -48,7 +50,10 @@ public class RegBookingService {
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public void prepareBooking(User user, List<PassengersDto> passengersDto, SearchFormDto searchFormDto, List<Price> prices) throws BookingFailedException, FlightsNotFoundException, TicketFlightsNotFoundException {
+    public void prepareBooking(User user, List<PassengersDto> passengersDto,
+                               SearchFormDto searchFormDto, List<Price> prices)
+            throws BookingFailedException, FlightsNotFoundException {
+
         Bookings booking = bookingsService.createBooking(user, prices, searchFormDto.getNumberOfTickets());
         for (Price price : prices) {
             Flights flight = flightsService.getFlightByFlightId(price.getFlightId());

@@ -7,7 +7,6 @@ import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.expection.AirportsNotFoundException;
 import com.example.aviasale.expection.FlightsNotFoundException;
-import com.example.aviasale.expection.TicketFlightsNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,19 +22,18 @@ import java.util.stream.Collectors;
 public class SearchEngineService {
 
     private final FlightsService flightsService;
-    final private AirportsService airportsService;
-    final private TicketFlightsService ticketFlightsService;
-    final private PriceService priceService;
+    private final AirportsService airportsService;
+    private final TicketFlightsService ticketFlightsService;
+    private final PriceService priceService;
     private SearchFormDto searchFormDto;
+    private final List<String> MOSCOW_AIRPORTS = Arrays.asList("SVO", "DME", "VKO");
 
     @Autowired
     public SearchEngineService(FlightsService flightsService, AirportsService airportsService,
                                TicketFlightsService ticketFlightsService, PriceService priceService) {
         this.flightsService = flightsService;
-
         this.airportsService = airportsService;
         this.ticketFlightsService = ticketFlightsService;
-
         this.priceService = priceService;
     }
 
@@ -51,26 +49,25 @@ public class SearchEngineService {
         return LocalDateTime.parse(searchFormDto.getDate() + "T23:59:59");
     }
 
-    public ResponseEntity<?> getResult() throws AirportsNotFoundException, FlightsNotFoundException, TicketFlightsNotFoundException {
-        List<Flights> flights = this.getFlights();
-        if (flights.size() == 0) {
-            List<Flights> flightsInterval = this.getFlightsInterval();
-            if (flightsInterval.size() == 0) {
-                Map<String, Flights> connFlight = this.getConnFlight();
-                if (connFlight.size() > 0) {
-                    return new ResponseEntity<>(prepareConnFlight(connFlight), HttpStatus.OK);
+    public ResponseEntity<?> getFlights() throws AirportsNotFoundException, FlightsNotFoundException {
+        List<Flights> oneWayFlights = this.getOneWayFlights();
+        if (oneWayFlights.size() == 0) {
+            List<Flights> oneWayFlightsInterval = this.getOneWayFlightsInterval();
+            if (oneWayFlightsInterval.size() == 0) {
+                Map<String, Flights> connFlights = this.getConnFlights();
+                if (connFlights.size() > 0) {
+                    return new ResponseEntity<>(prepareConnFlights(connFlights), HttpStatus.OK);
                 } else {
                     return new ResponseEntity<>("Nothing found by selected params", HttpStatus.OK);
                 }
             } else {
-                return new ResponseEntity<>(prepareOneWayFlight(flightsInterval, true), HttpStatus.OK);
+                return new ResponseEntity<>(prepareOneWayFlights(oneWayFlightsInterval, true), HttpStatus.OK);
             }
-        } else {
-            return new ResponseEntity<>(prepareOneWayFlight(flights, false), HttpStatus.OK);
         }
+        return new ResponseEntity<>(prepareOneWayFlights(oneWayFlights, false), HttpStatus.OK);
     }
 
-    private List<OneWayFlightDto> prepareOneWayFlight(List<Flights> flights, Boolean interval) throws AirportsNotFoundException {
+    private List<OneWayFlightDto> prepareOneWayFlights(List<Flights> flights, Boolean interval) throws AirportsNotFoundException {
         List<OneWayFlightDto> list = new ArrayList<>();
         for (Flights flight : flights) {
             OneWayFlightDto oneWayFlightDto = new OneWayFlightDto();
@@ -84,12 +81,12 @@ public class SearchEngineService {
         return list;
     }
 
-    public List<Flights> getFlightsInterval() throws AirportsNotFoundException, FlightsNotFoundException {
-        return this.filter(this.findFlightsInterval());
+    public List<Flights> getOneWayFlightsInterval() throws AirportsNotFoundException, FlightsNotFoundException {
+        return this.oneWayFlightsFilter(this.findOneWayFlightsInterval());
     }
 
-    public List<Flights> getFlights() throws AirportsNotFoundException, FlightsNotFoundException {
-        return this.filter(this.findFlights());
+    public List<Flights> getOneWayFlights() throws AirportsNotFoundException, FlightsNotFoundException {
+        return this.oneWayFlightsFilter(this.findOneWayFlights());
     }
 
     /**
@@ -97,7 +94,7 @@ public class SearchEngineService {
      * then flight fits the condition.
      */
     @Transactional
-    public List<Flights> filter(List<Flights> flights) {
+    public List<Flights> oneWayFlightsFilter(List<Flights> flights) {
         return flights.stream().filter(fl -> {
             Integer availableSeats = ticketFlightsService.getFreeSeats(fl.getFlightId(), fl.getAircraft(), searchFormDto.getConditions());
             if (availableSeats > 0) {
@@ -108,13 +105,13 @@ public class SearchEngineService {
         }).collect(Collectors.toList());
     }
 
-    public List<Flights> findFlights() throws AirportsNotFoundException, FlightsNotFoundException {
+    public List<Flights> findOneWayFlights() throws AirportsNotFoundException, FlightsNotFoundException {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
         return flightsService.getFlightsByParam(airportsInCityFrom, airportsInCityTo, searchDateStart(), searchDateEnd());
     }
 
-    public List<Flights> findFlightsInterval() throws AirportsNotFoundException, FlightsNotFoundException {
+    public List<Flights> findOneWayFlightsInterval() throws AirportsNotFoundException, FlightsNotFoundException {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
         LocalDateTime date1 = searchDateStart().minusDays(4);
@@ -122,82 +119,84 @@ public class SearchEngineService {
         return flightsService.getFlightsByParam(airportsInCityFrom, airportsInCityTo, date1, date2);
     }
 
-    public List<ConnFlightDto> prepareConnFlight(Map<String, Flights> map) throws AirportsNotFoundException {
+    public List<ConnFlightDto> prepareConnFlights(Map<String, Flights> connFlights) throws AirportsNotFoundException {
         List<ConnFlightDto> dtoList = new ArrayList<>();
-        List<Flights> values = new ArrayList<>(map.values());
-        for (int i = 0; i < values.size(); i += 2) {
+        List<Flights> connFlight = new ArrayList<>(connFlights.values());
+        for (int i = 0; i < connFlight.size(); i += 2) {
             ConnFlightDto dto = new ConnFlightDto();
-            dto.setFlight1(values.get(i));
-            dto.setFlight2(values.get(i + 1));
-            dto.setPrice1(priceService.createPrice(values.get(i).getFlightId(), values.get(i).getFlightNo(), searchFormDto.getConditions()));
-            dto.setPrice2(priceService.createPrice(values.get(i + 1).getFlightId(), values.get(i + 1).getFlightNo(), searchFormDto.getConditions()));
-            Airports airFrom1 = airportsService.getAirportFrom(values.get(i).getFlightId());
-            Airports airTo1 = airportsService.getAirportTo(values.get(i).getFlightId());
+            dto.setFlight1(connFlight.get(i));
+            dto.setFlight2(connFlight.get(i + 1));
+            dto.setPrice1(priceService.createPrice(connFlight.get(i).getFlightId(), connFlight.get(i).getFlightNo(), searchFormDto.getConditions()));
+            dto.setPrice2(priceService.createPrice(connFlight.get(i + 1).getFlightId(), connFlight.get(i + 1).getFlightNo(), searchFormDto.getConditions()));
+            Airports airFrom1 = airportsService.getAirportFrom(connFlight.get(i).getFlightId());
+            Airports airTo1 = airportsService.getAirportTo(connFlight.get(i).getFlightId());
             dto.setAirFrom1(airFrom1);
             dto.setAirTo1(airTo1);
-            Airports airFrom2 = airportsService.getAirportFrom(values.get(i + 1).getFlightId());
-            Airports airTo2 = airportsService.getAirportTo(values.get(i + 1).getFlightId());
+            Airports airFrom2 = airportsService.getAirportFrom(connFlight.get(i + 1).getFlightId());
+            Airports airTo2 = airportsService.getAirportTo(connFlight.get(i + 1).getFlightId());
             dto.setAirFrom2(airFrom2);
             dto.setAirTo2(airTo2);
             dto.setConn(true);
             dtoList.add(dto);
         }
-        //Sort by duration
-        dtoList.sort((o1, o2) -> {
-            Duration duration1 = Duration.between(o1.getFlight1().getDepartureDate(), o1.getFlight2().getArrivalDate());
-            Duration duration2 = Duration.between(o2.getFlight1().getDepartureDate(), o2.getFlight2().getArrivalDate());
-            return Long.compare(duration1.toHours(), duration2.toHours());
-        });
+        dtoList.sort(connFlightsComparatorByDuration());
         return dtoList;
     }
 
-    public Map<String, Flights> getConnFlight() throws AirportsNotFoundException, FlightsNotFoundException, TicketFlightsNotFoundException {
-        return this.connectingFlights();
+    public Comparator<ConnFlightDto> connFlightsComparatorByDuration() {
+        return (o1, o2) -> {
+            Duration duration1 = Duration.between(o1.getFlight1().getDepartureDate(), o1.getFlight2().getArrivalDate());
+            Duration duration2 = Duration.between(o2.getFlight1().getDepartureDate(), o2.getFlight2().getArrivalDate());
+            return Long.compare(duration1.toHours(), duration2.toHours());
+        };
     }
 
-    public Map<String, Flights> connectingFlights() throws AirportsNotFoundException, FlightsNotFoundException, TicketFlightsNotFoundException {
+    public Map<String, Flights> getConnFlights() throws AirportsNotFoundException, FlightsNotFoundException {
+        return this.findConnFlights();
+    }
+
+    public Map<String, Flights> findConnFlights() throws AirportsNotFoundException, FlightsNotFoundException {
         List<String> airportsInCityFrom = airportsService.getAllAirportsInCity(searchFormDto.getCityFrom());
         List<String> airportsInCityTo = airportsService.getAllAirportsInCity(searchFormDto.getCityTo());
-        List<String> intersect = flightsService.getIntersectArrivalAirports(airportsInCityFrom, airportsInCityTo);
-        if (intersect.size() > 0) {
-            List<String> MOSCOW = Arrays.asList("SVO", "DME", "VKO");
-            List<String> MOSCOWFirst = intersect.stream()
-                    .filter(MOSCOW::contains)
+        List<String> intersectArrivalAirports = flightsService.getIntersectArrivalAirports(airportsInCityFrom, airportsInCityTo);
+        if (intersectArrivalAirports.size() > 0) {
+            List<String> MOSCOW_first = intersectArrivalAirports.stream()
+                    .filter(MOSCOW_AIRPORTS::contains)
                     .collect(Collectors.toList());
-            if (MOSCOWFirst.size() > 0) {
-                Map<String, Flights> mscMap = connFlightsFilter(MOSCOWFirst, airportsInCityFrom, airportsInCityTo);
-                intersect.removeAll(MOSCOWFirst);
-                Map<String, Flights> other = connFlightsFilter(intersect, airportsInCityFrom, airportsInCityTo);
-                mscMap.putAll(other);
-                return mscMap;
+            if (MOSCOW_first.size() > 0) {
+                Map<String, Flights> transferInMoscowFlights = connFlightsFilter(MOSCOW_first, airportsInCityFrom, airportsInCityTo);
+                intersectArrivalAirports.removeAll(MOSCOW_first);
+                Map<String, Flights> transferInOtherCitiesFlights = connFlightsFilter(intersectArrivalAirports, airportsInCityFrom, airportsInCityTo);
+                transferInMoscowFlights.putAll(transferInOtherCitiesFlights);
+                return transferInMoscowFlights;
             }
-            return connFlightsFilter(intersect, airportsInCityFrom, airportsInCityTo);
+            return connFlightsFilter(intersectArrivalAirports, airportsInCityFrom, airportsInCityTo);
         }
         return Collections.emptyMap();
     }
 
-    public Map<String, Flights> connFlightsFilter(List<String> airports, List<String> airFrom, List<String> airTo) throws FlightsNotFoundException, TicketFlightsNotFoundException {
-        List<Flights> first = flightsService.getFlightsByParam(airFrom, airports, searchDateStart().minusDays(1), searchDateEnd().plusDays(1));
-        List<Flights> second = flightsService.getFlightsByParam(airports, airTo, searchDateStart(), searchDateEnd());
+    public Map<String, Flights> connFlightsFilter(List<String> intersectArrivAirp, List<String> airFrom, List<String> airTo) throws FlightsNotFoundException {
+        List<Flights> first = flightsService.getFlightsByParam(airFrom, intersectArrivAirp, searchDateStart(), searchDateEnd());
+        List<Flights> second = flightsService.getFlightsByParam(intersectArrivAirp, airTo, searchDateStart(), searchDateEnd().plusDays(1));
         if (!first.isEmpty() && !second.isEmpty()) {
-            Map<String, Flights> map = new LinkedHashMap<>();
+            Map<String, Flights> connFlights = new LinkedHashMap<>();
             long prevDiff = 24;
             for (Flights f : first) {
                 for (Flights s : second) {
                     Duration duration = Duration.between(f.getArrivalDate(), s.getDepartureDate());
-                    long diff = duration.toHours();
-                    if (diff >= 1 && diff < 24 && diff <= prevDiff) {
+                    long dur = duration.toHours();
+                    if (dur >= 1 && dur < 24 && dur <= prevDiff) {
                         Integer availableSeats = ticketFlightsService.getFreeSeats(f.getFlightId(), f.getAircraft(), searchFormDto.getConditions());
                         if (searchFormDto.getNumberOfTickets() <= availableSeats) {
                             String key = "|" + UUID.randomUUID().toString().substring(0, 4);
-                            map.put(diff + "_F" + key, f);
-                            map.put(diff + "_S" + key, s);
-                            prevDiff = diff;
+                            connFlights.put(dur + "_F_" + f.getFlightId() + "_" + key, f);
+                            connFlights.put(dur + "_S_" + s.getFlightId() + "_" + key, s);
+                            prevDiff = dur;
                         }
                     }
                 }
             }
-            if (map.size() > 0) return map;
+            if (connFlights.size() > 0) return connFlights;
         }
         return Collections.emptyMap();
     }

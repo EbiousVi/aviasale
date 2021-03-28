@@ -105,6 +105,13 @@
                     status: "",
                     aircraft: "",
                 },
+                airports: new Map(),
+                airport: {
+                    airportCode: "",
+                    airportName: "",
+                    city: "",
+                    timeZone: ""
+                },
             }
         },
         async mounted() {
@@ -154,7 +161,9 @@
                             },
                         })
                         .then(response => {
+                            console.log(response.data)
                             this.flights.set(ticketNo, response.data);
+                            return response.data;
                         });
                 } else {
                     let promise = refreshTokens();
@@ -166,7 +175,6 @@
                 }
             }
         }
-        ,
     }
 </script>
 

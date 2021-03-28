@@ -19,4 +19,6 @@ public interface AirportsRepository extends JpaRepository<Airports, String> {
 
     @Query("SELECT a from Flights f join Airports a on f.airportTo = a.airportCode where f.flightId =:flightId")
     Optional<Airports> findAirportToByFlightId(Integer flightId);
+
+    Optional<Airports> findByAirportCode(String airportCode);
 }
