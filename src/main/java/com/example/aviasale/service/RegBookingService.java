@@ -2,7 +2,7 @@ package com.example.aviasale.service;
 
 import com.example.aviasale.domain.dto.apiDto.BookingsDto;
 import com.example.aviasale.domain.dto.apiDto.PassengersDto;
-import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
+import com.example.aviasale.domain.dto.apiDto.SearchQueryDto;
 import com.example.aviasale.domain.entity.*;
 import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.expection.BookingFailedException;
@@ -36,13 +36,13 @@ public class RegBookingService {
     }
 
     public void registrationBooking(User user, List<PassengersDto> passengersDto,
-                                    SearchFormDto searchFormDto, List<Price> prices)
+                                    SearchQueryDto searchQueryDto, List<Price> prices)
             throws BookingFailedException, FlightsNotFoundException {
 
         if (prices.size() == 1) {
-            prepareBooking(user, passengersDto, searchFormDto, prices);
+            prepareBooking(user, passengersDto, searchQueryDto, prices);
         } else if (prices.size() == 2) {
-            prepareBooking(user, passengersDto, searchFormDto, prices);
+            prepareBooking(user, passengersDto, searchQueryDto, prices);
         } else {
             throw new BookingFailedException("Price size != 1 or != 2", HttpStatus.NOT_FOUND);
         }
@@ -51,18 +51,18 @@ public class RegBookingService {
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     public void prepareBooking(User user, List<PassengersDto> passengersDto,
-                               SearchFormDto searchFormDto, List<Price> prices)
+                               SearchQueryDto searchQueryDto, List<Price> prices)
             throws BookingFailedException, FlightsNotFoundException {
 
-        Bookings booking = bookingsService.createBooking(user, prices, searchFormDto.getNumberOfTickets());
+        Bookings booking = bookingsService.createBooking(user, prices, searchQueryDto.getNumberOfTickets());
         for (Price price : prices) {
             Flights flight = flightsService.getFlightByFlightId(price.getFlightId());
-            Integer freeSeats = ticketFlightsService.getFreeSeats(flight.getFlightId(), flight.getAircraft(), searchFormDto.getConditions());
+            Integer freeSeats = ticketFlightsService.getFreeSeats(flight.getFlightId(), flight.getAircraft(), searchQueryDto.getConditions());
             if (freeSeats <= 0) {
                 throw new BookingFailedException("No free seats in flight = " + flight.getFlightId(), HttpStatus.NOT_FOUND);
             }
             List<Tickets> tickets = ticketsService.createTickets(booking, passengersDto);
-            ticketFlightsService.createTicketsFlights(tickets, price, searchFormDto);
+            ticketFlightsService.createTicketsFlights(tickets, price, searchQueryDto);
         }
     }
 

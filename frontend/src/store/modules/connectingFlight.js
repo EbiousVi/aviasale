@@ -1,7 +1,7 @@
 export default {
     state() {
         return {
-            connectingFlight: [{
+            oneWayConnFlight: [{
                 flight1: {
                     flightId: 0,
                     flightNo: "",
@@ -59,16 +59,16 @@ export default {
         }
     },
     mutations: {
-        setConnectingFlight(state, payload) {
-            state.connectingFlight = payload;
+        setOneWayConnFlight(state, payload) {
+            state.oneWayConnFlight = payload;
         },
         setPrices(state, payload) {
             state.prices = payload;
         }
     },
     getters: {
-        getConnectingFlight(state) {
-            return state.connectingFlight;
+        getOneWayConnFlight(state) {
+            return state.oneWayConnFlight;
         },
         getPrices(state) {
             return state.prices;

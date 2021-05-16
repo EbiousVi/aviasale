@@ -16,24 +16,28 @@ import java.util.Optional;
 @Repository
 public interface FlightsRepository extends JpaRepository<Flights, Integer> {
 
+    @Query(value = "select * from flights order by flight_id", nativeQuery = true)
+    List<Flights> findAllFlights();
+
     Optional<Flights> findByFlightId(Integer flightId);
 
     @Query("select f from Flights f where f.airportFrom in :airportsInCityFrom " +
             "and f.airportTo in :airportsInCityTo " +
-            "and f.departureDate between :date1 and :date2 " +
+            "and f.departureDate between :dayStart and :dayEnd " +
             "and f.status = 'Scheduled' " +
             "order by f.departureDate")
-    Optional<List<Flights>> findFlightsWithSearchParams(@Param("airportsInCityFrom") List<String> airportsInCityFrom,
-                                                        @Param("airportsInCityTo") List<String> airportsInCityTo,
-                                                        @Param("date1") LocalDateTime date1,
-                                                        @Param("date2") LocalDateTime date2);
+    List<Flights> findFlightsBySearchParams(@Param("airportsInCityFrom") List<String> airportsInCityFrom,
+                                            @Param("airportsInCityTo") List<String> airportsInCityTo,
+                                            @Param("dayStart") LocalDateTime dayStart,
+                                            @Param("dayEnd") LocalDateTime dayEnd);
 
+    //---------------------------------------------------------------------------------
     @Query(value = "select distinct arrival_airport from flights\n" +
-            "where departure_airport  in :start \n" +
+            "where departure_airport  in :first \n" +
             "INTERSECT\n" +
             "select distinct arrival_airport from flights\n" +
-            "where departure_airport in :end", nativeQuery = true)
-    Optional<List<String>> findIntersectArrivalAirports(@Param("start") List<String> start, @Param("end") List<String> end);
+            "where departure_airport in :second", nativeQuery = true)
+    List<String> findIntersectArrivalAirports(@Param("first") List<String> first, @Param("second") List<String> second);
 
     @Query(value = "select round(avg(a) - avg(a)%100) from \n" +
             "(select amount as a from flights\n" +

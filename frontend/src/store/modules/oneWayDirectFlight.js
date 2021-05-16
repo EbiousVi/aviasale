@@ -1,8 +1,7 @@
 export default {
     state() {
         return {
-            oneWayFlight: [{
-                interval: false,
+            oneWayDirectFlight: [{
                 flight: {
                     flightId: 0,
                     flightNo: "",
@@ -37,8 +36,8 @@ export default {
         }
     },
     mutations: {
-        setOneWayFlight(state, payload) {
-            state.oneWayFlight = payload;
+        setOneWayDirectFlight(state, payload) {
+            state.oneWayDirectFlight = payload;
         },
         setNumberOfTickets(state, payload) {
             state.numberOfTickets = payload;
@@ -48,17 +47,11 @@ export default {
         }
     },
     getters: {
-        getOneWayFlight(state) {
-            return state.oneWayFlight;
+        getOneWayDirectFlight(state) {
+            return state.oneWayDirectFlight;
         },
         getNumberOfTickets(state) {
             return state.numberOfTickets;
-        },
-        getInterval(state) {
-            if (state.oneWayFlight[0].interval === undefined) {
-                return false;
-            }
-            return state.oneWayFlight[0].interval;
         },
         getPrice(state) {
             let prices = [];

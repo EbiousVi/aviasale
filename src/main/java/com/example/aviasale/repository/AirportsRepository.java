@@ -10,7 +10,10 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface AirportsRepository extends JpaRepository<Airports, String> {
-    Optional<List<Airports>> findAllByCityContainsIgnoreCase(String city);
+    List<Airports> findAllByCityContainsIgnoreCase(String city);
+
+    @Query(value = "SELECT city FROM airports a where a.city =:city", nativeQuery = true)
+    Optional<List<Airports>> findAllByCity(String city);
 
     Optional<List<Airports>> findAllBy();
 

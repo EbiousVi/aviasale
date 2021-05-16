@@ -1,6 +1,6 @@
 package com.example.aviasale.service;
 
-import com.example.aviasale.domain.dto.apiDto.SearchFormDto;
+import com.example.aviasale.domain.dto.apiDto.SearchQueryDto;
 import com.example.aviasale.domain.entity.TicketFlights;
 import com.example.aviasale.domain.entity.Tickets;
 import com.example.aviasale.domain.pojo.Price;
@@ -28,14 +28,14 @@ public class TicketFlightsService {
         return freeSeats.orElse(0);
     }
 
-    public void createTicketsFlights(List<Tickets> tickets, Price price, SearchFormDto searchFormDto) {
+    public void createTicketsFlights(List<Tickets> tickets, Price price, SearchQueryDto searchQueryDto) {
         for (Tickets ticket : tickets) {
             TicketFlights ticketFlight = new TicketFlights();
             TicketFlights.CompositeKey compositeKey = new TicketFlights.CompositeKey();
             compositeKey.setFlightId(price.getFlightId());
             compositeKey.setTicketNumber(ticket.getTicketNumber());
             ticketFlight.setCompositeKey(compositeKey);
-            ticketFlight.setFareConditions(searchFormDto.getConditions());
+            ticketFlight.setFareConditions(searchQueryDto.getConditions());
             ticketFlight.setAmount(price.getValue().doubleValue());
             ticketFlightsRepository.save(ticketFlight);
             System.err.println(3);

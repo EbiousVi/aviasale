@@ -12,6 +12,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     //Барбара Лисков на месте!
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<?> handleCustomException(CustomException ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(ex.getHttpStatus()).body(ex.getMessage());
     }
 }

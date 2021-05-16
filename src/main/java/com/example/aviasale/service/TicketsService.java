@@ -43,7 +43,7 @@ public class TicketsService {
                 String contacts = objectMapper.writeValueAsString(contactsJson);
                 ticket.setContactDataJsonb(contacts);
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+
             }
             ticketsRepository.save(ticket);
             tickets.add(ticket);

@@ -4,7 +4,7 @@ import com.example.aviasale.domain.entity.Airports;
 import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.domain.pojo.Price;
 
-public class ConnFlightDto {
+public class OneWayConnFlightDto {
     private Flights flight1;
     private Flights flight2;
     private Airports airFrom1;
@@ -17,7 +17,7 @@ public class ConnFlightDto {
 
     @Override
     public String toString() {
-        return "ConnFlightDto{" +
+        return "OneWayConnFlightDto{" +
                 "flight1=" + flight1 +
                 ", flight2=" + flight2 +
                 ", airFrom1=" + airFrom1 +
@@ -30,7 +30,7 @@ public class ConnFlightDto {
                 '}';
     }
 
-    public ConnFlightDto() {
+    public OneWayConnFlightDto() {
     }
 
     public Flights getFlight1() {

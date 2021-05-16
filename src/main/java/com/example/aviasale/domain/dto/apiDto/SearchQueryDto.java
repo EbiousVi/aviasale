@@ -1,22 +1,18 @@
 package com.example.aviasale.domain.dto.apiDto;
 
-
-
-
-public class SearchFormDto {
-
+public class SearchQueryDto {
     private String cityFrom;
     private String cityTo;
     private String date;
     private String conditions;
     private Integer numberOfTickets;
 
-    public SearchFormDto() {
+    public SearchQueryDto() {
     }
 
     @Override
     public String toString() {
-        return "SearchFormDto{" +
+        return "SearchQueryDto{" +
                 "cityFrom='" + cityFrom + '\'' +
                 ", cityTo='" + cityTo + '\'' +
                 ", date='" + date + '\'' +

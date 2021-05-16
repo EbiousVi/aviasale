@@ -91,7 +91,7 @@
         },
         computed: {
             prepareFlights() {
-                return this.$store.getters.getConnectingFlight;
+                return this.$store.getters.getOneWayConnFlight;
             },
         },
         methods: {

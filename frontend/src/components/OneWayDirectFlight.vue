@@ -1,5 +1,4 @@
 <template>
-    <h3 v-if="isInterval">Nothing found by selected date! Result in interval around week by selected date.</h3>
     <div v-for="(fl,index) of prepareFlights" v-bind:key="fl">
         <table v-bind:class="index">
             <thead>
@@ -93,19 +92,15 @@
             }
         },
         mounted() {
-            let flights = this.$store.getters.getOneWayFlight;
+            let flights = this.$store.getters.getOneWayDirectFlight;
             for (let i = 0; i < flights.length; i++) {
                 this.getFreeSeats(flights[i].flight.flightId, flights[i].flight.aircraft)
             }
         },
         computed: {
             prepareFlights() {
-                return this.$store.getters.getOneWayFlight;
+                return this.$store.getters.getOneWayDirectFlight;
             },
-            isInterval() {
-                return this.$store.getters.getInterval;
-            },
-
         },
         methods: {
             booking(i, price) {

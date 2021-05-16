@@ -4,11 +4,10 @@
             <div class="wrap">
                 <AutoComplete id="cityFrom" v-on:autocomplete-input="bindCityFrom">City From</AutoComplete>
                 <AutoComplete id="cityTo" v-on:autocomplete-input="bindCityTo">City To</AutoComplete>
-                <label for="date">Date
-                    <input v-model="form.date" type="date" class="form-control" id="date" placeholder="Date"
-                           min="2017-07-16" max="2017-09-15">
+                <label for="dateThere">Date There
+                    <input v-model="form.date" type="date" class="form-control" id="dateThere" placeholder="Date"
+                           min="2017-07-16" max="2017-09-15" required>
                 </label>
-
             </div>
             <div class="wrap">
                 <label for="numberOfTickets">Number Of Tickets
@@ -45,12 +44,12 @@
         emits: ["loaded"],
         data() {
             return {
-                flightsURL: 'http://localhost:6060/flights',
+                oneWayFlightsURL: 'http://localhost:6060/one-way/flight',
                 bookingsURL: 'http://localhost:6060/bookings',
                 form: {
                     cityFrom: String,
                     cityTo: String,
-                    date: "2017-09-09",
+                    date: "2017-09-08",
                     conditions: "Economy",
                     numberOfTickets: 1
                 },
@@ -74,7 +73,7 @@
                 const accessToken = localStorage.getItem("accessToken");
                 const isValid = validity(accessToken);
                 if (isValid) {
-                    axios.post(this.flightsURL, this.form, {
+                    axios.post(this.oneWayFlightsURL, this.form, {
                         headers: {
                             'Access-Control-Allow-Origin': 'http://localhost:8080',
                             'Authorization': bearer(accessToken)
@@ -83,23 +82,21 @@
                         .then((response) => {
                             if (response.status === 200) {
                                 if (response.data[0].conn === true) {
-                                    this.$store.commit("setConnectingFlight", response.data);
+                                    this.$store.commit("setOneWayConnFlight", response.data);
                                     this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, false, true]);
-                                }
-                                if (response.data[0].interval !== undefined) {
-                                    this.$store.commit("setOneWayFlight", response.data);
+                                } else if (response.data[0].direct === true) {
+                                    this.$store.commit("setOneWayDirectFlight", response.data);
                                     this.$store.commit("setNumberOfTickets", this.form.numberOfTickets);
                                     this.$emit("loaded", [false, true, false]);
                                 }
-                                if (response.data.startsWith("Nothing")) {
-                                    this.warning = true;
-                                    this.message = response.data;
-                                }
                             }
                         })
-                        .catch(() => {
-
+                        .catch((error) => {
+                            if (error.response) {
+                                this.warning = true;
+                                this.message = error.response.data;
+                            }
                         });
                 } else {
                     let promise = refreshTokens();

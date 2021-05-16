@@ -30,15 +30,17 @@ public class FlightsService {
 
     public List<Flights> getFlightsByParam(List<String> airportsInCityFrom,
                                            List<String> airportsInCityTo,
-                                           LocalDateTime date1,
-                                           LocalDateTime date2) throws FlightsNotFoundException {
-        return flightsRepository.findFlightsWithSearchParams(airportsInCityFrom, airportsInCityTo, date1, date2)
-                .orElseThrow(() -> new FlightsNotFoundException("Flights not found by search params", HttpStatus.NOT_FOUND));
+                                           LocalDateTime dayStart,
+                                           LocalDateTime dayEnd) {
+        return flightsRepository.findFlightsBySearchParams(airportsInCityFrom, airportsInCityTo, dayStart, dayEnd);
     }
 
     public List<String> getIntersectArrivalAirports(List<String> airportsInCityFrom,
-                                                    List<String> airportsInCityTo) throws FlightsNotFoundException {
-        return flightsRepository.findIntersectArrivalAirports(airportsInCityFrom, airportsInCityTo)
-                .orElseThrow(() -> new FlightsNotFoundException("No crossing arrival airports", HttpStatus.NOT_FOUND));
+                                                    List<String> airportsInCityTo) {
+        return flightsRepository.findIntersectArrivalAirports(airportsInCityFrom, airportsInCityTo);
+    }
+
+    public List<Flights> findAllFlights() {
+        return flightsRepository.findAllFlights();
     }
 }
