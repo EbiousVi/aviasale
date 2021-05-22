@@ -2,9 +2,11 @@ package com.example.aviasale.service.searchEngine.flightTypes.directFlightImpl;
 
 import com.example.aviasale.domain.entity.Flights;
 import com.example.aviasale.service.searchEngine.flightTypes.interfaces.TwoWayDirectFlights;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class TwoWayDirectFlightsService implements TwoWayDirectFlights<TwoWayDirectFlights> {
     @Override
     public List<Flights> findFlightsThere() {

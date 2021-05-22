@@ -19,5 +19,11 @@ public class ConnFlight {
         return second;
     }
 
-
+    @Override
+    public String toString() {
+        return "ConnFlight{" +
+                "first=" + first +
+                ", second=" + second +
+                '}';
+    }
 }

@@ -2,13 +2,9 @@ package com.example.aviasale.service;
 
 import com.example.aviasale.domain.dto.apiDto.BookingsDto;
 import com.example.aviasale.domain.dto.apiDto.PassengersDto;
-import com.example.aviasale.domain.dto.apiDto.SearchQueryDto;
 import com.example.aviasale.domain.entity.*;
 import com.example.aviasale.domain.pojo.Price;
-import com.example.aviasale.expection.BookingFailedException;
-import com.example.aviasale.expection.FlightsNotFoundException;
-import com.example.aviasale.expection.TicketFlightsNotFoundException;
-import com.example.aviasale.expection.TicketsNotFoundException;
+import com.example.aviasale.expection.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.http.HttpStatus;
@@ -25,49 +21,39 @@ public class RegBookingService {
     private final TicketFlightsService ticketFlightsService;
     private final TicketsService ticketsService;
     private final FlightsService flightsService;
+    private final SearchQueryService searchQuery;
 
     @Autowired
     public RegBookingService(BookingsService bookingsService, TicketFlightsService ticketFlightsService,
-                             TicketsService ticketsService, FlightsService flightsService) {
+                             TicketsService ticketsService, FlightsService flightsService,
+                             SearchQueryService searchQuery) {
         this.bookingsService = bookingsService;
         this.ticketFlightsService = ticketFlightsService;
         this.ticketsService = ticketsService;
         this.flightsService = flightsService;
-    }
-
-    public void registrationBooking(User user, List<PassengersDto> passengersDto,
-                                    SearchQueryDto searchQueryDto, List<Price> prices)
-            throws BookingFailedException, FlightsNotFoundException {
-
-        if (prices.size() == 1) {
-            prepareBooking(user, passengersDto, searchQueryDto, prices);
-        } else if (prices.size() == 2) {
-            prepareBooking(user, passengersDto, searchQueryDto, prices);
-        } else {
-            throw new BookingFailedException("Price size != 1 or != 2", HttpStatus.NOT_FOUND);
-        }
+        this.searchQuery = searchQuery;
     }
 
     @Transactional
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public void prepareBooking(User user, List<PassengersDto> passengersDto,
-                               SearchQueryDto searchQueryDto, List<Price> prices)
-            throws BookingFailedException, FlightsNotFoundException {
-
-        Bookings booking = bookingsService.createBooking(user, prices, searchQueryDto.getNumberOfTickets());
+    public void prepareBooking(User user, List<PassengersDto> passengers) throws BookingFailedException, FlightsNotFoundException {
+        List<Price> prices = searchQuery.getPrices();
+        Bookings booking = bookingsService.createBooking(user, prices, searchQuery.getSearchQueryDto().getNumberOfTickets());
+        String conditions = searchQuery.getSearchQueryDto().getConditions();
         for (Price price : prices) {
             Flights flight = flightsService.getFlightByFlightId(price.getFlightId());
-            Integer freeSeats = ticketFlightsService.getFreeSeats(flight.getFlightId(), flight.getAircraft(), searchQueryDto.getConditions());
+            Integer freeSeats = ticketFlightsService.getFreeSeats(flight.getFlightId(), flight.getAircraft(), conditions);
             if (freeSeats <= 0) {
-                throw new BookingFailedException("No free seats in flight = " + flight.getFlightId(), HttpStatus.NOT_FOUND);
+                throw new BookingFailedException("No free seats in flight = "
+                        + flight.getFlightId(), HttpStatus.NOT_FOUND);
             }
-            List<Tickets> tickets = ticketsService.createTickets(booking, passengersDto);
-            ticketFlightsService.createTicketsFlights(tickets, price, searchQueryDto);
+            List<Tickets> tickets = ticketsService.createTickets(booking, passengers);
+            ticketFlightsService.createTicketsFlights(tickets, price, conditions);
         }
     }
 
     @Transactional
-    public Bookings deleteBookingRelations(String bookRef) throws TicketsNotFoundException, TicketFlightsNotFoundException {
+    public Bookings deleteBookingRelations(String bookRef) throws TicketFlightsNotFoundException, BookingNotFoundException {
         Bookings booking = bookingsService.getBookingByBookRef(bookRef);
         List<Tickets> ticketsList = ticketsService.getTicketsByBookRef(booking.getBookRef());
         for (Tickets ticket : ticketsList) {
@@ -83,7 +69,7 @@ public class RegBookingService {
         ticketsService.deleteTicketByTicketNo(ticketNo);
     }
 
-    public List<BookingsDto> getAllBookingDtoByUser(User user) throws TicketsNotFoundException {
+    public List<BookingsDto> getAllBookingDtoByUser(User user) {
         List<Bookings> bookings = bookingsService.getBookingsByUser(user);
         List<BookingsDto> bookingDtos = new ArrayList<>();
         for (Bookings booking : bookings) {

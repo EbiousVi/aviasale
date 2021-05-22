@@ -1,6 +1,7 @@
 package com.example.aviasale.service.searchEngine.searchEngine;
 
 import com.example.aviasale.service.searchEngine.flightTypes.interfaces.OneWayFlights;
+import com.example.aviasale.service.searchEngine.flightTypes.interfaces.TwoWayFlights;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +13,11 @@ import java.util.List;
 public class TwoWaySearchEngineService implements SearchEngine {
 
     @Autowired
-    private List<OneWayFlights> twoWayServices;
+    private List<TwoWayFlights> twoWayServices;
 
     @Override
     public ResponseEntity<?> getResult() {
-        for (OneWayFlights strategy : twoWayServices) {
+        for (TwoWayFlights strategy : twoWayServices) {
             List<?> flights = strategy.getFlight();
             if (!flights.isEmpty()) {
                 return new ResponseEntity<>(flights, HttpStatus.OK);

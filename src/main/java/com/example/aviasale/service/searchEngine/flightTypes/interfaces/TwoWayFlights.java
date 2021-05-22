@@ -1,4 +1,4 @@
 package com.example.aviasale.service.searchEngine.flightTypes.interfaces;
 
-public interface TwoWayFlights {
+public interface TwoWayFlights extends FlightType {
 }

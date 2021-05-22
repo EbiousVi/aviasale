@@ -2,13 +2,16 @@ package com.example.aviasale.service.searchEngine.flightTypes.connFlightImpl;
 
 import com.example.aviasale.domain.dto.apiDto.OneWayConnFlightDto;
 import com.example.aviasale.domain.entity.Flights;
+
 import com.example.aviasale.domain.pojo.ConnFlight;
+import com.example.aviasale.expection.FlightsNotFoundException;
 import com.example.aviasale.service.*;
 import com.example.aviasale.service.FlightsService;
 import com.example.aviasale.service.dtoPacker.OneWayConnFlightPackager;
 import com.example.aviasale.service.searchEngine.flightTypes.interfaces.OneWayConnFlights;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -91,8 +94,8 @@ public class OneWayConnFlightsService implements OneWayConnFlights<ConnFlight> {
         List<Flights> first = findFirst(airportsInCityFrom, intersectArrivalAirports);
         List<Flights> second = findSecond(intersectArrivalAirports, airportsInCityTo);
 
-        List<ConnFlight> connFlights = freeSeatsFilter(durationFilter(first, second));
-        List<OneWayConnFlightDto> dtoList = packager.wrapToDto(connFlights);
+        List<ConnFlight> availableFlights = freeSeatsFilter(durationFilter(first, second));
+        List<OneWayConnFlightDto> dtoList = packager.wrapToDto(availableFlights);
         if (dtoList.isEmpty()) return Collections.emptyList();
         return dtoList;
     }

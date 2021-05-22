@@ -5,10 +5,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AviasaleApplication {
-
+public class AviaSaleApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(AviasaleApplication.class, args);
+		SpringApplication.run(AviaSaleApplication.class, args);
 	}
-
 }

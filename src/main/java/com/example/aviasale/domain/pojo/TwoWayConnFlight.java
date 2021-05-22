@@ -16,6 +16,4 @@ public class TwoWayConnFlight {
     public ConnFlight getBack() {
         return back;
     }
-
-
 }

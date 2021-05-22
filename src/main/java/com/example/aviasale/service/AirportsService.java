@@ -32,6 +32,6 @@ public class AirportsService {
     }
 
     public List<Airports> getAllAirportsFromDB() {
-        return airportsRepository.findAllBy().orElse(Collections.emptyList());
+        return airportsRepository.findAllBy();
     }
 }

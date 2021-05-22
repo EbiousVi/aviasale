@@ -4,6 +4,8 @@ import com.example.aviasale.domain.entity.Bookings;
 import com.example.aviasale.domain.entity.User;
 import com.example.aviasale.domain.pojo.Price;
 import com.example.aviasale.expection.BookingFailedException;
+import com.example.aviasale.expection.BookingNotFoundException;
+import com.example.aviasale.expection.CustomException;
 import com.example.aviasale.repository.BookingsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,10 +32,10 @@ public class BookingsService {
         booking.setBookDate(LocalDateTime.now());
         booking.setBookRef(UUID.randomUUID().toString().substring(0, 6));
         Double sum = prices.stream()
-                .map(x -> x.getValue().doubleValue())
+                .map(p -> p.getValue().doubleValue() * numberOfTickets)
                 .reduce(Double::sum)
                 .orElseThrow(() -> new BookingFailedException("Price is Empty", HttpStatus.NOT_FOUND));
-        booking.setTotalAmount(sum * numberOfTickets);
+        booking.setTotalAmount(sum);
         booking.setUser(user);
         bookingsRepository.save(booking);
 
@@ -46,8 +49,9 @@ public class BookingsService {
         bookingsRepository.delete(booking);
     }
 
-    public Bookings getBookingByBookRef(String bookRef) {
-        return bookingsRepository.findByBookRef(bookRef);
+    public Bookings getBookingByBookRef(String bookRef) throws BookingNotFoundException {
+        return bookingsRepository.findByBookRef(bookRef)
+                .orElseThrow(() -> new BookingNotFoundException("Booking not Found by" + bookRef, HttpStatus.NOT_FOUND));
     }
 
     public List<Bookings> getBookingsByUser(User user) {
